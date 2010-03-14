@@ -107,8 +107,8 @@
 			}
 			s += int(timer % 60).toString();
 			timerTxt.text = s;
-			timerTxt.x = player.x - 50 + 4;
-			timerTxt.y = player.y + 10;
+			timerTxt.x = Math.abs( FlxG.scroll.x) - 38;
+			timerTxt.y = Math.abs( FlxG.scroll.y);//player.y + 10;
 		}
 		
 		public function PlayState()
