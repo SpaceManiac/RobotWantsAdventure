@@ -1,0 +1,1 @@
+This folder contains the PHP part of Robot Wants Kitty - all the database connection stuff.
