@@ -19,7 +19,7 @@ class Png2Raw
 	
 	function loadPng($filename)
 	{
-		$this->png = imagecreatefrompng($filename);
+		$this->png = $filename;
 	}
 	
 	function loadLookup($filename)
@@ -39,7 +39,7 @@ class Png2Raw
 	
 	function convert()
 	{
-		$image = $this->png;
+		$image = imagecreatefrompng($this->png);
 		$h = imagesx($image);
 		$w = imagesy($image);
 		
