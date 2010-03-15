@@ -248,7 +248,7 @@
 			
 			if (FlxG.keys.justPressed("RIGHT")) {
 				if (selection == 0 && MapI != -1) {
-					if (MapI < maplist.length) MapI++;
+					if (MapI < maplist.length - 1) MapI++;
 					mapname();
 				} else if (selection == 1) {
 					PowerStart = !PowerStart;
