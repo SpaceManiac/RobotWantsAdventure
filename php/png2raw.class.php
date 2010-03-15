@@ -6,20 +6,20 @@
 
 class Png2Raw
 {
-	public $bitmap;
+	public $png;
 	public $lookup = array();
 	public $raw = array();
 	
-	/// $bitmap is optional, so you can pass the bmp later if you want.
-	function __construct( $bitmap = '' )
+	/// $png is optional, so you can pass the bmp later if you want.
+	function __construct( $png = '' )
 	{
-		$this->bitmap = $bitmap;
+		$this->png = $png;
 		$this->raw = NULL;
 	}
 	
 	function loadPng($filename)
 	{
-		$this->bitmap = imagecreatefrompng($filename);
+		$this->png = imagecreatefrompng($filename);
 	}
 	
 	function loadLookup($filename)
@@ -39,7 +39,7 @@ class Png2Raw
 	
 	function convert()
 	{
-		$image = $this->bitmap;
+		$image = $this->png;
 		$h = imagesx($image);
 		$w = imagesy($image);
 		
