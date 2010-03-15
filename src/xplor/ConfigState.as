@@ -43,6 +43,7 @@
 		public static var BossSpeed:uint = 20; //
 		
 		public static var RocketOnFloor:Boolean = true;
+		public static var LargeBlockFactor:uint = 50;
 		
 		private var arrow:FlxText;
 		private var mapT:FlxText;
@@ -58,6 +59,7 @@
 		private var basT:FlxText;
 		private var bosssT:FlxText;
 		private var rfloorT:FlxText;
+		private var lbfT:FlxText;
 		
 		private var mapnames:Array = ["Original Level\n by Hamumu",
 				"Kitty Got Captured!\n by Redbone",
@@ -120,6 +122,9 @@
 			// rocket on floor
 			add(new FlxText(80, y += i, 120, "Dashing on Floor: "));
 			add(rfloorT = new FlxText(200, y, 200, boolstr(RocketOnFloor)));
+			// large block factor
+			add(new FlxText(80, y += i, 120, "Large Block Factor: "));
+			add(lbfT = new FlxText(200, y, 200, LargeBlockFactor.toString() + "%"));
         }
 		
 		private function boolstr(x:Boolean):String {
@@ -139,7 +144,7 @@
 				if (selection > 0) selection--;
 			}
 			if (FlxG.keys.justPressed("DOWN")) {
-				if (selection < 12) selection++;
+				if (selection < 13) selection++;
 			}
 			arrow.y = 32 + 11 * selection;
 			if (selection > 0) arrow.y += 11;
@@ -185,6 +190,9 @@
 				} else if (selection == 12) {
 					RocketOnFloor = !RocketOnFloor;
 					rfloorT.text = boolstr(RocketOnFloor);
+				} else if (selection == 13) {
+					if (LargeBlockFactor > 0) LargeBlockFactor -= 5;
+					lbfT.text = LargeBlockFactor.toString() + "%";
 				}
 			}
 			
@@ -228,6 +236,9 @@
 				} else if (selection == 12) {
 					RocketOnFloor = !RocketOnFloor;
 					rfloorT.text = boolstr(RocketOnFloor);
+				} else if (selection == 13) {
+					if (LargeBlockFactor < 100) LargeBlockFactor += 5;
+					lbfT.text = LargeBlockFactor.toString() + "%";
 				}
 			}
 			

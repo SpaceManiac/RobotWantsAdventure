@@ -74,7 +74,7 @@
 				{
 					if ((i%2)==0 && (i % 256) < 255 && a[i + 1] == 50 && (i / 256) < 255 && a[i + 256] == 50 && a[i + 256 + 1] == 50)	// this is the upper left of a square of these
 					{
-						if (Math.random() < 0.5)
+						if (Math.random() < (ConfigState.LargeBlockFactor / 100))
 						{
 							a[i] = 51;
 							a[i + 1] = 52;

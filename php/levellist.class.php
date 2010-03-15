@@ -12,6 +12,8 @@
 		passwords, but don't add that file to the repo!
 */
 
+require_once 'getdbc.php';
+
 class LevelList
 {
 	public $levels = array();
@@ -22,8 +24,13 @@ class LevelList
 	
 	function load()
 	{
-		//This would load the levels from the database, except the database
-		//doesn't exist yet so I don't know what to write. :P
+		$dbh = getDBC();
+		$sql = 'SELECT * FROM levels ORDER BY id ASC';
+		$stmt = $dbh->prepare($sql);
+		$stmt->execute();
+		while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+			$this->addLevel(new LevelListItem( $row['id'], $row['name'], $row['author'], $row['filename']));
+		}
 	}
 	
 	function outputXML()
@@ -36,6 +43,7 @@ class LevelList
 			$lvl->addAttribute('id', $level->id);
 			$lvl->addChild('name', $level->name);
 			$lvl->addChild('author', $level->author);
+			$lvl->addChild('filename', $level->filename);
 		}
 		echo $xml->asXML();
 	}
@@ -45,11 +53,12 @@ class LevelListItem
 {
 	public $id, $name, $author;
 	
-	function __construct( $id, $name, $author )
+	function __construct( $id, $name, $author, $filename )
 	{
 		$this->id = $id;
 		$this->name = $name;
 		$this->author = $author;
+		$this->filename = $filename;
 	}
 }
 
