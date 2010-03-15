@@ -28,7 +28,7 @@ class LevelList
 	
 	function outputXML()
 	{
-		$xml = new SimpleXMLElement('<levels>');
+		$xml = new SimpleXMLElement('<levels></levels>');
 		
 		foreach ( $this->levels as $level )
 		{
