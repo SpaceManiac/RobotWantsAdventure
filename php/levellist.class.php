@@ -12,6 +12,8 @@
 		passwords, but don't add that file to the repo!
 */
 
+require_once 'getdbc.php';
+
 class LevelList
 {
 	public $levels = array();
@@ -20,10 +22,19 @@ class LevelList
 		$this->levels[] = $level;
 	}
 	
-	function load()
+	function load($testing)
 	{
-		//This would load the levels from the database, except the database
-		//doesn't exist yet so I don't know what to write. :P
+		$dbh = getDBC();
+		$sql = 'SELECT * FROM levels';
+		if(!$testing) {
+			$sql .= ' WHERE testing=0';
+		}
+		$sql .= ' ORDER BY id ASC';
+		$stmt = $dbh->prepare($sql);
+		$stmt->execute();
+		while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+			$this->addLevel(new LevelListItem( $row['id'], $row['name'], $row['author'], $row['filename'], $row['testing']));
+		}
 	}
 	
 	function outputXML()
@@ -34,8 +45,10 @@ class LevelList
 		{
 			$lvl = $xml->addChild('level');
 			$lvl->addAttribute('id', $level->id);
+			$lvl->addAttribute('testing', $level->testing);
 			$lvl->addChild('name', $level->name);
 			$lvl->addChild('author', $level->author);
+			$lvl->addChild('filename', $level->filename);
 		}
 		echo $xml->asXML();
 	}
@@ -43,13 +56,15 @@ class LevelList
 
 class LevelListItem
 {
-	public $id, $name, $author;
+	public $id, $name, $author, $filename, $testing;
 	
-	function __construct( $id, $name, $author )
+	function __construct( $id, $name, $author, $filename, $testing )
 	{
 		$this->id = $id;
 		$this->name = $name;
 		$this->author = $author;
+		$this->filename = $filename;
+		$this->testing = $testing;
 	}
 }
 
