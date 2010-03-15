@@ -22,6 +22,7 @@
 		protected var bombs:Array;
 		protected var reload:int;
 		protected var player:Player;
+		private var justhit:Boolean = false;
 		
 		public function Boss(x:int,y:int,map:Array,bombs:Array,player:Player) 
 		{
@@ -48,6 +49,7 @@
 		
 		public override function update():void
 		{
+			justhit = false;
 			var xx:int,yy:int;
 			
 			if (player.x<x-240 || player.x>x+240 || player.y<y-180 || player.y>y+180)
@@ -100,11 +102,14 @@
 		
 		public override function hitWall(Contact:FlxCore=null):Boolean
 		{
-			this.velocity.x = -this.velocity.x;
-			if (velocity.x > 0)
-				facing = RIGHT;
-			else
-				facing = LEFT;
+			//if (justhit) return false;
+			
+			//justhit = true;
+			//this.velocity.x = -this.velocity.x;
+			//if (velocity.x > 0)
+			//	facing = RIGHT;
+			//else
+			//	facing = LEFT;
 			return true;
 		}
 
