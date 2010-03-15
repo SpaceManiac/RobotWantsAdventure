@@ -4,21 +4,13 @@
 <flex-config>
   <compiler>
     <source-path append="true">
-<<<<<<< HEAD
       <path-element>D:\projects\RobotWantsAdventure\src</path-element>
       <path-element>D:\flex\include</path-element>
-=======
-      <path-element>C:\Users\Sam\Documents\github\RobotWantsAdventure\src</path-element>
->>>>>>> 58f8b4e7719e43da9b182223ebe0e25cdf6b7a98
       <path-element>C:\Program Files\FlashDevelop\Library\AS3\classes</path-element>
     </source-path>
   </compiler>
   <file-specs>
-<<<<<<< HEAD
     <path-element>D:\projects\RobotWantsAdventure\src\xplor\Xplor.as</path-element>
-=======
-    <path-element>C:\Users\Sam\Documents\github\RobotWantsAdventure\src\xplor\Xplor.as</path-element>
->>>>>>> 58f8b4e7719e43da9b182223ebe0e25cdf6b7a98
   </file-specs>
   <default-background-color>#FFFFFF</default-background-color>
   <default-frame-rate>30</default-frame-rate>
