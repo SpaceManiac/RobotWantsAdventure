@@ -22,6 +22,8 @@
 		protected static var MSmallMap:Class;
 		[Embed(source = "../../data/maps/thetower_bowserfan.raw", mimeType="application/octet-stream")]
 		protected static var MTheTower:Class;
+		[Embed(source = "../../data/maps/yesh_yourter.raw", mimeType="application/octet-stream")]
+		protected static var MYesh:Class;
 		
 		public static var Map:Class = MClassic; //
 		public static var MapI:uint = 0; //
@@ -63,7 +65,8 @@
 				"Another Level\n by Megadog",
 				"Koopa Cavern\n by PurpleKoopa",
 				"Small Map\n by Cliffy1000",
-				"The Tower\n by Bowserfan"];
+				"The Tower\n by Bowserfan",
+				"YESH!\n by Yourter12"];
 		
 		private var fading:Boolean = false;
 		private var selection:uint = 0;
@@ -247,6 +250,8 @@
 				Map = MSmallMap;
 			} else if (MapI == 6) {
 				Map = MTheTower;
+			} else if (MapI == 7) {
+				Map = MYesh;
 			}
 			
             FlxG.switchState(TitleState);
