@@ -25,7 +25,12 @@
 		{
 			FlxG.log("Loading map");
 			// get the loaded byte stream into a ByteArray
-			var b:ByteArray = ConfigState.Map;
+			var b:ByteArray;
+			if (ConfigState.Map == null) {
+				b = new BackupMap();
+			} else {
+				b = ConfigState.Map;
+			}
 			var a:Array = new Array();
 			b.position = 0;
 			// move that ByteArray into an Array
