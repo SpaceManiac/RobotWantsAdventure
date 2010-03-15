@@ -20,6 +20,8 @@
 		protected static var MKoopaCavern:Class;
 		[Embed(source = "../../data/maps/smallmap_cliffy.raw", mimeType="application/octet-stream")]
 		protected static var MSmallMap:Class;
+		[Embed(source = "../../data/maps/thetower_bowserfan.raw", mimeType="application/octet-stream")]
+		protected static var MTheTower:Class;
 		
 		public static var Map:Class = MClassic; //
 		public static var MapI:uint = 0; //
@@ -60,7 +62,8 @@
 				"Awesome Town\n by Moltanem2000",
 				"Another Level\n by Megadog",
 				"Koopa Cavern\n by PurpleKoopa",
-				"Small Map\n by Cliffy1000"];
+				"Small Map\n by Cliffy1000",
+				"The Tower\n by Bowserfan"];
 		
 		private var fading:Boolean = false;
 		private var selection:uint = 0;
@@ -242,6 +245,8 @@
 				Map = MKoopaCavern;
 			} else if (MapI == 5) {
 				Map = MSmallMap;
+			} else if (MapI == 6) {
+				Map = MTheTower;
 			}
 			
             FlxG.switchState(TitleState);
