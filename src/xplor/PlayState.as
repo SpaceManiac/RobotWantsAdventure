@@ -9,6 +9,9 @@
 		protected var TilesImage:Class;
 		private const mapWidth:int = 256;
 		
+		[Embed(source = "../../data/map.raw", mimeType="application/octet-stream")]
+		protected static var BackupMap:Class;
+		
 		protected var tileMap:FlxTilemap;
 		protected var player:Player;
 		protected var enemies:Array;
@@ -20,8 +23,9 @@
 		
 		public function LoadMap():void
 		{
+			FlxG.log("Loading map");
 			// get the loaded byte stream into a ByteArray
-			var b:ByteArray = new ConfigState.Map();
+			var b:ByteArray = ConfigState.Map;
 			var a:Array = new Array();
 			b.position = 0;
 			// move that ByteArray into an Array
@@ -91,6 +95,7 @@
 			
 			FlxG.followAdjust(0.5,0.0);
 			tileMap.follow();
+			FlxG.log("Done");
 		}
 		
 		public function TimerText():void
@@ -113,6 +118,7 @@
 		
 		public function PlayState()
 		{
+			FlxG.log("PlayState opened");
 			super();
 			enemies = new Array();
 			bullets = new Array();

@@ -1,5 +1,8 @@
 ﻿package xplor
 {
+	import flash.events.Event;
+	import flash.net.URLLoader;
+	import flash.net.URLRequest;
 	import flash.utils.ByteArray;
     import org.flixel.*;
 	
@@ -8,6 +11,7 @@
 		[Embed(source="../../data/powerup.mp3")] 
 		protected var hitSnd:Class;
 		
+		/*
 		[Embed(source = "../../data/maps/classic.raw", mimeType="application/octet-stream")]
 		protected static var MClassic:Class;
 		[Embed(source = "../../data/maps/kittycaptured_rb.raw", mimeType="application/octet-stream")]
@@ -24,9 +28,11 @@
 		protected static var MTheTower:Class;
 		[Embed(source = "../../data/maps/yesh_yourter.raw", mimeType="application/octet-stream")]
 		protected static var MYesh:Class;
+		*/
 		
-		public static var Map:Class = MClassic; //
-		public static var MapI:uint = 0; //
+		//public static var Map:Class = MClassic; //
+		public static var Map:ByteArray;
+		public static var MapI:int = -1; //
 		public static var PowerStart:Boolean = false; //
 		public static var DuckJump:Boolean = false; //
 		
@@ -45,8 +51,11 @@
 		public static var RocketOnFloor:Boolean = true;
 		public static var LargeBlockFactor:uint = 50;
 		
+		private var maplist:Array;
+		
 		private var arrow:FlxText;
 		private var mapT:FlxText;
+		private var maplT:FlxText;
 		private var powerT:FlxText;
 		private var duckjT:FlxText;
 		private var timerT:FlxText;
@@ -61,19 +70,51 @@
 		private var rfloorT:FlxText;
 		private var lbfT:FlxText;
 		
-		private var mapnames:Array = ["Original Level\n by Hamumu",
+		public static var testing:uint = 0;
+		
+		/* private var mapnames:Array = ["Original Level\n by Hamumu",
 				"Kitty Got Captured!\n by Redbone",
 				"Awesome Town\n by Moltanem2000",
 				"Another Level\n by Megadog",
 				"Koopa Cavern\n by PurpleKoopa",
 				"Small Map\n by Cliffy1000",
 				"The Tower\n by Bowserfan",
-				"YESH!\n by Yourter12"];
+				"YESH!\n by Yourter12"]; */
 		
 		private var fading:Boolean = false;
+		private var finishedStage:Boolean = false;
 		private var selection:uint = 0;
 		
+		private function loadMaps():void {
+			FlxG.log("Downloading map list");
+			mapT.text = "Downloading list...";
+			var req:URLRequest = new URLRequest("http://wombat.platymuus.com/rwa/levellist.php?testing=" + testing.toString());
+			var loader:URLLoader = new URLLoader();
+			loader.addEventListener(Event.COMPLETE, loadMapsCallback);
+			loader.load(req);
+		}
+		
+		private function loadMapsCallback(event:Event):void {
+			FlxG.log("Processing map list");
+			mapT.text = "Processing list...";
+			maplist = new Array();
+			var xml:XML = new XML(event.target.data);
+			for (var i:uint = 0; i < xml.level.length(); ++i) {
+				var mapd:Array = new Array();
+				mapd['id'] = xml.level[i].@id;
+				mapd['name'] = xml.level[i].name;
+				if (xml.level[i].@testing == 1) mapd['name'] += " *";
+				mapd['author'] = xml.level[i].author;
+				mapd['filename'] = xml.level[i].filename;
+				maplist[maplist.length] = mapd;
+			}
+			MapI = 0;
+			mapname();
+			FlxG.log("Done");
+		}
+		
         override public function ConfigState() {
+			FlxG.log("ConfigState opened");
             add(new FlxText(0, 8, FlxG.width, "Settings Screen", 0xffffffff, null, 16, "center"));
             add(new FlxText(0, FlxG.height  -20, FlxG.width, "Up/down to select, l/r to change", 0xffffffff, null, 8, "center"));
             add(new FlxText(0, FlxG.height  -12, FlxG.width, "Press Z to return", 0xffffffff, null, 8, "center"));
@@ -84,7 +125,8 @@
 			var i:uint = 11, y:uint = 32 - i;
 			// map
 			add(new FlxText(80, y += i, 120, "Adventure: "));
-			add(mapT = new FlxText(200, y, 200, mapnames[MapI]));
+			add(mapT = new FlxText(200, y, 200, ""));
+			add(maplT = new FlxText(100, y + 10, 120, ""));
 			y += i;
 			// super start
 			add(new FlxText(80, y += i, 120, "Start Superpowered: "));
@@ -125,6 +167,8 @@
 			// large block factor
 			add(new FlxText(80, y += i, 120, "Large Block Factor: "));
 			add(lbfT = new FlxText(200, y, 200, LargeBlockFactor.toString() + "%"));
+			
+			loadMaps();
         }
 		
 		private function boolstr(x:Boolean):String {
@@ -132,12 +176,18 @@
 			else return "off";
 		}
 		
+		private function mapname():void {
+			mapT.text = maplist[MapI]['name'] + "\n  by " + maplist[MapI]['author'];
+			maplT.text = (MapI + 1).toString() + "/" + maplist.length.toString();
+		}
+		
         override public function update():void {
             if (FlxG.keys.Z && !fading) {
+				fading = true;
+				downloadMap();
 				FlxG.flash(0xffffffff, 0.75);
 				FlxG.fade(0xff000000, 0.5, onFade);
 				FlxG.play(hitSnd);
-				fading = true;
 			}
 			
 			if (FlxG.keys.justPressed("UP")) {
@@ -151,9 +201,9 @@
 			
 			
 			if (FlxG.keys.justPressed("LEFT")) {
-				if (selection == 0) {
+				if (selection == 0 && MapI >= 0) {
 					if (MapI > 0) MapI--;
-					mapT.text = mapnames[MapI];
+					mapname();
 				} else if (selection == 1) {
 					PowerStart = !PowerStart;
 					powerT.text = boolstr(PowerStart);
@@ -197,9 +247,9 @@
 			}
 			
 			if (FlxG.keys.justPressed("RIGHT")) {
-				if (selection == 0) {
-					if (MapI < mapnames.length-1) MapI++;
-					mapT.text = mapnames[MapI];
+				if (selection == 0 && MapI != -1) {
+					if (MapI < maplist.length) MapI++;
+					mapname();
 				} else if (selection == 1) {
 					PowerStart = !PowerStart;
 					powerT.text = boolstr(PowerStart);
@@ -245,27 +295,47 @@
             super.update();
         }
 		
-        private function onFade():void {
-			// update map ByteArray
-			if (MapI == 0) {
-				Map = MClassic;
-			} else if (MapI == 1) {
-				Map = MKittyCaptured;
-			} else if (MapI == 2) {
-				Map = MAwesomeTown;
-			} else if (MapI == 3) {
-				Map = MAnotherLevel;
-			} else if (MapI == 4) {
-				Map = MKoopaCavern;
-			} else if (MapI == 5) {
-				Map = MSmallMap;
-			} else if (MapI == 6) {
-				Map = MTheTower;
-			} else if (MapI == 7) {
-				Map = MYesh;
+		private function downloadMap():void {
+			if (MapI == -1) {
+				FlxG.log("No map chosen, skipping download");
+				if (finishedStage) {
+					FlxG.switchState(TitleState);
+				} else {
+					finishedStage = true;
+				}
+				return;
 			}
+			FlxG.log("Downloading map " + maplist[MapI]['filename']);
+			var req:URLRequest = new URLRequest("http://wombat.platymuus.com/rwa/levels/" + maplist[MapI]['filename']);
+			var loader:URLLoader = new URLLoader();
+			loader.addEventListener(Event.COMPLETE, downloadMapCallback);
+			loader.load(req);
+		}
+		
+		private function downloadMapCallback(event:Event):void {
+			FlxG.log("Processing map");
+			var b:ByteArray = new ByteArray();
+			var data:String = event.target.data;
+			b.position = 0;
+			for (var i:uint = 0; i < data.length; ++i) {
+				b.writeByte(data.charCodeAt(i));
+			}
+			Map = b;
 			
-            FlxG.switchState(TitleState);
+            if (finishedStage) {
+				FlxG.switchState(TitleState);
+			} else {
+				finishedStage = true;
+			}
+			FlxG.log("Done");
+		}
+		
+        private function onFade():void {
+            if (finishedStage) {
+				FlxG.switchState(TitleState);
+			} else {
+				finishedStage = true;
+			}
         }
     }
 }

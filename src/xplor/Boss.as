@@ -52,8 +52,8 @@
 			justhit = false;
 			var xx:int,yy:int;
 			
-			if (player.x<x-240 || player.x>x+240 || player.y<y-180 || player.y>y+180)
-				return;	// inactive when player is away!
+			//if (player.x<x-240 || player.x>x+240 || player.y<y-180 || player.y>y+180)
+				//return;	// inactive when player is away!
 				
 			if (reload)
 				reload--;
@@ -102,14 +102,11 @@
 		
 		public override function hitWall(Contact:FlxCore=null):Boolean
 		{
-			//if (justhit) return false;
-			
-			//justhit = true;
-			//this.velocity.x = -this.velocity.x;
-			//if (velocity.x > 0)
-			//	facing = RIGHT;
-			//else
-			//	facing = LEFT;
+			this.velocity.x = -this.velocity.x;
+			if (velocity.x > 0)
+				facing = RIGHT;
+			else
+				facing = LEFT;
 			return true;
 		}
 

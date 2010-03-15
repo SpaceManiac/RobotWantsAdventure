@@ -16,6 +16,7 @@
 		
         override public function TitleState():void
         {
+			FlxG.log("TitleState opened");
 			var b:ByteArray = new BuildNum();
 			var s:String = b.readUTFBytes(b.length);
 			
@@ -39,6 +40,9 @@
 				FlxG.fade(0xff000000, 0.5, onFadeConfig);
 				FlxG.play(hitSnd);
 				fading = true;
+			} else if (FlxG.keys.F12 && !ConfigState.testing) {
+				FlxG.log("Testing mode enabled");
+				ConfigState.testing = 1;
 			}
             super.update();
         }
