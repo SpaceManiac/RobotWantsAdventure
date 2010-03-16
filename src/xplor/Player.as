@@ -19,6 +19,8 @@
 		protected var powerupSnd:Class;
 		[Embed(source="../../data/door.mp3")] 
 		protected var doorSnd:Class;
+		[Embed(source="../../data/teleport.mp3")] 
+		protected var teleportSnd:Class;
 		
 		protected static const PLAYER_RUN_SPEED:int = 80;
 		protected static const GRAVITY_ACCELERATION:Number = 420;
@@ -46,6 +48,7 @@
 		protected var doubleTapDir:int;
 		protected var dashTime:int;
 		protected var dashed:Boolean;
+		protected var justTeleported:Boolean = false;
 		
 		public function Player(x:int,y:int,map:FlxTilemap,bullets:Array)
 		{
@@ -246,63 +249,76 @@
 			
 			tx = (x + 4) / 16;
 			ty = (y + 8) / 16;
-			if (map.getTile(tx,ty) == 4)	// jump power!
+			var tile:uint = map.getTile(tx, ty);
+			if (tile == 4)	// jump power!
 			{
 				map.setTile(tx, ty, 0);
 				powers[POWER_JUMP] = 1;
 				FlxG.play(powerupSnd);
 			}
-			if (map.getTile(tx,ty) == 5)	// shoot power!
+			else if (tile == 5)	// shoot power!
 			{
 				map.setTile(tx, ty, 0);
 				powers[POWER_SHOOT] = 1;
 				FlxG.play(powerupSnd);
 			}
-			if (map.getTile(tx, ty) == 6)	// deadly acid
+			else if (tile == 6)	// deadly acid
 			{
 				Die();
 			}
-			if (map.getTile(tx,ty) == 7)	// double jump power
+			else if (tile == 7)	// double jump power
 			{
 				map.setTile(tx, ty, 0);
 				powers[POWER_DOUBLEJUMP] = 1;
 				FlxG.play(powerupSnd);
 			}
-			if (map.getTile(tx,ty) == 8)	// rocket jump power
+			else if (tile == 8)	// rocket jump power
 			{
 				map.setTile(tx, ty, 0);
 				powers[POWER_ROCKET] = 1;
 				FlxG.play(powerupSnd);
 			}
-			if (map.getTile(tx,ty) == 9)	// dash power
+			else if (tile == 9)	// dash power
 			{
 				map.setTile(tx, ty, 0);
 				powers[POWER_DASH] = 1;
 				FlxG.play(powerupSnd);
 			}
-			if (map.getTile(tx,ty) == 11)	// red key
+			else if (tile == 11)	// red key
 			{
 				map.setTile(tx, ty, 0);
 				powers[POWER_REDKEY] = 1;
 				FlxG.play(powerupSnd);
 			}
-			if (map.getTile(tx,ty) == 12)	// green key
+			else if (tile == 12)	// green key
 			{
 				map.setTile(tx, ty, 0);
 				powers[POWER_GRNKEY] = 1;
 				FlxG.play(powerupSnd);
 			}
-			if (map.getTile(tx,ty) == 13)	// blue key
+			else if (tile == 13)	// blue key
 			{
 				map.setTile(tx, ty, 0);
 				powers[POWER_BLUKEY] = 1;
 				FlxG.play(powerupSnd);
 			}
-			if (map.getTile(tx,ty) == 15)	// rapid fire
+			else if (tile == 15)	// rapid fire
 			{
 				map.setTile(tx, ty, 0);
 				powers[POWER_RAPID] = 1;
 				FlxG.play(powerupSnd);
+			}
+			
+			if (tile == 16 || tile == 17 || tile == 18) // green, blue, red teleporters
+			{
+				if (!justTeleported) {
+					justTeleported = true;
+					teleportToNearest(tile, tx, ty);
+				}
+			}
+			else
+			{
+				justTeleported = false;
 			}
 			
 			if(velocity.y != 0 && dashTime==0)
@@ -313,6 +329,37 @@
 				play("dash");
 			
 			super.update();
+		}
+		
+		private function teleportToNearest(tile:uint, tx:uint, ty:uint):void {
+			FlxG.log("Teleporting");
+			var shortestDistance:Number = -1;
+			var destx:uint = 256;
+			var desty:uint = 256;
+			
+			for (var x:uint = 0; x < map.widthInTiles; ++x) {
+				for (var y:uint = 0; y < map.heightInTiles; ++y) {
+					if (x == tx && y == ty) continue;
+					if (map.getTile(x, y) == tile) {
+						var dx:int = tx - x;
+						var dy:int = ty - y;
+						var dist:Number = Math.sqrt(dx * dx + dy * dy);
+						if (dist < shortestDistance || shortestDistance == -1) {
+							destx = x;
+							desty = y;
+							shortestDistance = dist;
+						}
+					}
+				}
+			}
+			
+			if (destx != 256 && desty != 256) {
+				this.x = destx * 16 + 4;
+				this.y = desty * 16 + 1;
+				this.velocity.x = 0;
+				this.velocity.y = 0;
+				FlxG.play(teleportSnd);
+			}
 		}
 
 		override public function hitFloor(Contact:FlxCore = null):Boolean 

@@ -100,10 +100,10 @@ Eyedropper and pencil tool away - it's level building time! Here's the expanded 
 <b>R TEL</b>, <b>G TEL</b>, <b>B TEL</b> - red, green, & blue teleporters (note: these aren't implemented yet, so don't use them yet please!)
 </code>
 
-<h2>3. Submit your level</h2>
+<h2><a name="submit">3. Submit your level</a></h2>
 
 <?php echo $error; ?>
-<form action="upload.php" method="post" enctype="multipart/form-data">
+<form action="upload.php#submit" method="post" enctype="multipart/form-data">
 	<p>Select a level to upload. Levels must be in PNG format, 256x256. Once you upload it, a mod will test it and make it public.</p>
 	<table cellspacing="1" cellpadding="1" border="0">
 		<tr><td colspan="2" align="center"><input type="file" name="userfile" /></td></tr>
