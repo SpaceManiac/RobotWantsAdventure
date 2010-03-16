@@ -22,7 +22,7 @@
 			
             this.add(new FlxText(0, 20, FlxG.width, "Robot Wants Kitty:", 0xffffffff, null, 16, "center")) as FlxText;
             this.add(new FlxText(0, 36, FlxG.width, "Adventure Edition", 0xffffffff, null, 16, "center")) as FlxText;
-			this.add(new FlxText(0, 100, FlxG.width-1, "Build " + s, 0xffffffff, null, 8, "center"));
+			this.add(new FlxText(0, 100, FlxG.width - 1, "Build " + s, 0xffffffff, null, 8, "center"));
             this.add(new FlxText(0, FlxG.height - 28, FlxG.width, "Press Z to start", 0xffffffff, null, 8, "center"));
             this.add(new FlxText(0, FlxG.height - 20, FlxG.width, "Press X to configure", 0xffffffff, null, 8, "center"));
 			this.add(new FlxText(0, FlxG.height - 12, FlxG.width, "Press Q while playing to quit", 0xffffffff, null, 8, "center"));

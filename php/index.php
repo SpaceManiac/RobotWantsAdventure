@@ -2,8 +2,12 @@
 require_once '../wombat.php';
 WombatHead('Robot Wants Kitty: Adventure Edition');
 ?>
-<h1>Robot Wants Adventure</h1>
-<p>Welcome to the home of <b>Robot Wants Kitty: Adventure Edition</b>!</p>
+<h1>RWK: Adventure Edition</h1>
+<p>Welcome to the home of <b>Robot Wants Kitty: Adventure Edition</b>!<br />
+<a href="http://github.com/SpaceManiac/RobotWantsAdventure">Contribute</a> |
+<a href="#">About (coming soon)</a> |
+<a href="upload.php">Upload a level!</a>
+</p>
 
 <?php embed('rwa', 640, 480); ?>
 
