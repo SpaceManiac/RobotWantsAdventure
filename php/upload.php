@@ -31,6 +31,9 @@ if (isset($_FILES['userfile']))
 		$authorname = stripslashes($_POST['authorname']);
 		$levelname = stripslashes($_POST['levelname']);
 		
+		if($authorname == '') $authorname = "Anonymous";
+		if($levelname == '') $levelname = "Untitled";
+		
 		$newlocation = '/f5/wombatymuus/public/rwa/levels/' . $filename;
 		$i = 1;
 		while(file_exists($newlocation)) {
@@ -102,7 +105,7 @@ Eyedropper and pencil tool away - it's level building time! Here's the expanded 
 
 <?php echo $error; ?>
 <form action="upload.php" method="post" enctype="multipart/form-data">
-	<p>Select a level to upload. Levels must be in PNG format, 256x256.</p>
+	<p>Select a level to upload. Levels must be in PNG format, 256x256. Once you upload it, a mod will test it and make it public.</p>
 	<table cellspacing="1" cellpadding="1" border="0">
 		<tr><td colspan="2" align="center"><input type="file" name="userfile" /></td></tr>
 		<tr><td align="right"><b>Level name:</b></td><td><input type="text" name="levelname" /></td></tr>

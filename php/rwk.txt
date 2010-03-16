@@ -15,6 +15,9 @@
 13 0520ff // blue - blue key
 14 db9de5 // pinkish purple - boss monster
 15 f8ff1f // bright yellow - high-speed powerup
+16 506c13 // dark green - green teleporter
+17 30249b // dark blue - blue teleporter
+18 ac1702 // dark red - red teleporter
 //
 50 ffffff // white - solid wall
 // note - giant blocks are placed automatically

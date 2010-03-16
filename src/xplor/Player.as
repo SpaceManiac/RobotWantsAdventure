@@ -244,7 +244,7 @@
 				
 			var tx:int, ty:int;
 			
-			tx = (x + 8) / 16;
+			tx = (x + 4) / 16;
 			ty = (y + 8) / 16;
 			if (map.getTile(tx,ty) == 4)	// jump power!
 			{
