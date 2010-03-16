@@ -94,10 +94,10 @@ Eyedropper and pencil tool away - it's level building time! Here's the expanded 
 <b>RISER</b> - rocket riser powerup<br />
 <b>&nbsp;DASH</b> - dash rocket powerup<br />
 <b>L SPD</b> - laser rapid-fire/speed powerup<br />
-<b>R KEY</b>, <b>G KEY</b>, <b>B KEY</b> - red, green, & blue keys<br />
+<b><i>X</i> KEY</b> - red, green, & blue keys<br />
 <b>&nbsp;BOSS</b> - the boss monster <br />
-<b>R GAT</b>, <b>G GAT</b>, <b>B GAT</b> - red, green, & blue gates (doors) <br />
-<b>R TEL</b>, <b>G TEL</b>, <b>B TEL</b> - red, green, & blue teleporters (note: these aren't implemented yet, so don't use them yet please!)
+<b><i>X</i> GAT</b> - red, green, & blue gates (doors) <br />
+<b><i>X</i> TEL</b> - red, green, & blue teleporters (implemented!)
 </code>
 
 <h2><a name="submit">3. Submit your level</a></h2>

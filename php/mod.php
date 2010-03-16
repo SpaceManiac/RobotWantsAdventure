@@ -23,9 +23,13 @@ Enter password:<br />
 }
 
 $dbh = getDBC();
-
 if (isset($_POST['update'])) {
-	$id = 0; $name = ''; $author = ''; $filename = ''; $testing = 0;
+	$id = 0; $name = ''; $author = ''; $filename = ''; $testing = '';
+
+	$sql_d = 'DELETE FROM levels WHERE id=:id';
+	$stmt_d = $dbh->prepare($sql);
+	$stmt_d->bindParam(':id', $id);
+	
 	$sql = 'UPDATE levels SET name=:name, author=:author, filename=:filename, testing=:testing WHERE id=:id';
 	$stmt = $dbh->prepare($sql);
 	$stmt->bindParam(':id', $id);
@@ -33,11 +37,7 @@ if (isset($_POST['update'])) {
 	$stmt->bindParam(':author', $author);
 	$stmt->bindParam(':filename', $filename);
 	$stmt->bindParam(':testing', $testing);
-	
-	$sql_d = 'DELETE FROM levels WHERE id=:id';
-	$stmt_d = $dbh->prepare($sql);
-	$stmt_d->bindParam(':id', $id);
-	
+			
 	foreach(array_keys($_POST) as $key) {
 		if(substr($key, 0, 4) != 'name') continue;
 		if($key == 'name_new') continue;
@@ -47,7 +47,8 @@ if (isset($_POST['update'])) {
 		$filename = $_POST['filename_' . $id . '_'];
 		$testing = ($_POST['testing_' . $id . '_'] == "on" ? 1 : 0);
 		
-		if($_POST['delete_' . $id . '_'] == 'on') {
+		if(isset($_POST['delete_' . $id . '_'])) {
+			echo 'deleting';
 			$stmt_d->execute();
 		} else {
 			$stmt->execute();
@@ -93,7 +94,7 @@ while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 }
 
 ?>
-<h1>RWK:AE Mod Control Panel</h1>
+<h1>RWK:AE Mod Control Panel []</h1>
 <form action="mod.php" method="post" onsubmit="return confirm('Are you sure you want to update the database?');">
 <input type="hidden" name="update" value="1" />
 <table width="100%" cellspacing="0" cellpadding="1" border="1">
@@ -128,7 +129,7 @@ foreach($levels as $lvl) {
 	echo ' <img src="delete.png" alt="delete" /><input type="checkbox" name="delete_' . $id . '_" />';
 	$pngname = './levels/' . substr($filename, 0, strlen($filename)-4) . '.png';
 	if(file_exists($pngname)) {
-		echo ' <a href="' . $pngname . '"><img src="map.png" alt="view map" />';
+		echo ' <a href="' . $pngname . '"><img src="map.png" alt="view map" border="0" /></a>';
 	}
 	echo '</td>';
 	echo "</tr>\n";
