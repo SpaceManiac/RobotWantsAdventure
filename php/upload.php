@@ -5,8 +5,6 @@
 	otherwise tell the user.
 */
 
-session_start();
-
 function makeTiny($str) {
 	return str_replace(" ", "", strtolower($str));
 }
@@ -69,7 +67,9 @@ if (isset($_FILES['userfile']))
 }
 ?>
 <h1>Upload a level</h1>
-Want to make a level for Robot Wants Kitty: Adventure Edition? Here's how!
+<?php include('linkbar.php'); ?>
+
+<p>Want to make a level for Robot Wants Kitty: Adventure Edition? Here's how!</p>
 
 <h2>1. Get the tools</h2>
 First of all, you'll need an image editor such as MS Paint or Paint.NET - anything with an eyedropper tool and ability to save as PNG should work.<br />
@@ -112,6 +112,5 @@ Eyedropper and pencil tool away - it's level building time! Here's the expanded 
 		<tr><td colspan="2" align="center"><input type="submit" value="Submit level for testing" /></td></tr>
 	</table>
 </form>
-<p><a href="/rwa/">RWK:AE Home</a></p>
 
 <?php WombatFoot(); ?>

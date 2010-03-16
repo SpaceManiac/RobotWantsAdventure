@@ -1,6 +1,4 @@
 <?php
-session_start();
-
 require_once '../wombat.php';
 require_once 'getdbc.php';
 require_once 'modpassword.php';
@@ -94,7 +92,9 @@ while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 }
 
 ?>
-<h1>RWK:AE Mod Control Panel []</h1>
+<h1>RWK:AE Mod Control Panel</h1>
+<?php include('linkbar.php'); ?>
+
 <form action="mod.php" method="post" onsubmit="return confirm('Are you sure you want to update the database?');">
 <input type="hidden" name="update" value="1" />
 <table width="100%" cellspacing="0" cellpadding="1" border="1">

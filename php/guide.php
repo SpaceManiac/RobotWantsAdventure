@@ -3,7 +3,7 @@ require_once '../wombat.php';
 WombatHead('RWK:AE - Robot Ability Guide');
 ?>
 <h1>Robot Ability Guide</h1>
-<p><a href="/rwa/">Back to main</a></p>
+<?php include('linkbar.php'); ?>
 
 <p>Robot can jump 2 and a half tiles upwards. This means he'll die on ouch blocks 3 tiles above him!<br />
 <img src="guide_jump.png" alt="Jumping diagram" /></p>
