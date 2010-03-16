@@ -4,6 +4,8 @@
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.utils.ByteArray;
+	import flash.utils.clearTimeout;
+	import flash.utils.setTimeout;
     import org.flixel.*;
 	
     public class ConfigState extends FlxState
@@ -85,16 +87,24 @@
 		private var finishedStage:Boolean = false;
 		private var selection:uint = 0;
 		
+		private var timeout:uint = 0;
+		
 		private function loadMaps():void {
 			FlxG.log("Downloading map list");
 			mapT.text = "Downloading list...";
 			var req:URLRequest = new URLRequest("http://wombat.platymuus.com/rwa/levellist.php?testing=" + testing.toString());
 			var loader:URLLoader = new URLLoader();
 			loader.addEventListener(Event.COMPLETE, loadMapsCallback);
+			timeout = setTimeout(loadMapsTimeout, 5000);
 			loader.load(req);
 		}
 		
 		private function loadMapsCallback(event:Event):void {
+			if (timeout == 0) {
+				return;
+			}
+			clearTimeout(timeout);
+			timeout = 0;
 			FlxG.log("Processing map list");
 			mapT.text = "Processing list...";
 			maplist = new Array();
@@ -111,6 +121,12 @@
 			MapI = 0;
 			mapname();
 			FlxG.log("Done");
+		}
+		
+		private function loadMapsTimeout():void {
+			timeout = 0;
+			mapT.text = "Download timed out!\nOnly classic is available";
+			MapI = -1;
 		}
 		
         override public function ConfigState() {

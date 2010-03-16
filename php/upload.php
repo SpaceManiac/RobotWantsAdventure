@@ -7,11 +7,8 @@
 
 session_start();
 
-//First, check the user is an admin. I'm assuming only admins can upload.
-//Otherwise, simply remove this section.
-if(!isset($_SESSION['rwamod'])) {
-	header('Location: http://wombat.platymuus.com/rwa/mod.php');
-	die;
+function makeTiny($str) {
+	return str_replace(" ", "", strtolower($str));
 }
 
 require_once '../wombat.php';
@@ -32,7 +29,9 @@ if (isset($_FILES['userfile']))
 		$levelname = stripslashes($_POST['levelname']);
 		
 		if($authorname == '') $authorname = "Anonymous";
-		if($levelname == '') $levelname = "Untitled";
+		if($levelname == '') $levelname = "Untitled " . mt_rand(10, 99);
+		
+		$filename = makeTiny($levelname) . '_' . makeTiny($authorname) . '.png';
 		
 		$newlocation = '/f5/wombatymuus/public/rwa/levels/' . $filename;
 		$i = 1;
