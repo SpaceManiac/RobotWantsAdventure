@@ -90,6 +90,16 @@ class Png2Raw
 				}
 			}
 		}
+		
+		if(!$haskitty) {
+			$this->error = "Level doesn't contain a kitty";
+			return false;
+		}
+		if(!$hasrobot) {
+			$this->error = "Level doesn't contain a robot";
+			return false;
+		}
+		
 		return true;
 	}
 }

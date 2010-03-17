@@ -168,6 +168,12 @@
 			FlxG.overlapArray(enemies, player, PlayerBumped);
 			if (Math.abs(player.x - kitty.x) < 30 && Math.abs(player.y - kitty.y) < 30)
 				FlxG.switchState(WinState);
+				
+			if (player.x > kitty.x) {
+				kitty.facing = FlxSprite.RIGHT;
+			} else if (player.x < kitty.x) {
+				kitty.facing = FlxSprite.LEFT;
+			}
 			
 			if (FlxG.keys.justPressed("Q")) {
 				FlxG.flash(0xffffffff, 0.75);

@@ -6,7 +6,7 @@ WombatHead('RWK:AE - Mod Control Panel');
 
 if(!isset($_SESSION['rwamod'])) {
 	if(isset($_POST['password']) && $_POST['password'] == MOD_PASSWORD) {
-		$_SESSION['rwamod'] = true;
+		$_SESSION['rwamod'] = MOD_PASSWORD;
 	} else {
 ?>
 <form action="mod.php" method="post">
@@ -16,6 +16,11 @@ Enter password:<br />
 </form>
 <?php
 		WombatFoot();
+		die;
+	}
+} else {
+	if($_SESSION['rwamod'] !== MOD_PASSWORD) {
+		unset($_SESSION['rwamod']);
 		die;
 	}
 }
@@ -69,12 +74,18 @@ $stmt = $dbh->prepare($sql);
 $stmt->execute();
 
 $files = array();
+$unused_png = array();
 opendir('levels/');
 while(($f = readdir()) !== FALSE) {
-	if($f[0] == '.' || substr($f, strlen($f)-4, 4) != '.raw') {
+	if($f[0] == '.' ) {
 		continue;
 	}
-	$files[] = $f;
+	$ext = substr($f, strlen($f)-4, 4);
+	if($ext == '.raw') {
+		$files[] = $f;
+	} else if($ext == '.png') {
+		$unused_png[] = $f;
+	}
 }
 sort($files, SORT_STRING);
 $unused_files = $files;
@@ -89,6 +100,22 @@ while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 	if($index !== FALSE) {
 		array_splice($unused_files, $index, 1);
 	}
+	$png = substr($row['filename'], 0, strlen($row['filename'])-4) . '.png';
+	$index = array_search($png, $unused_png);
+	if($index !== FALSE) {
+		array_splice($unused_png, $index, 1);
+	}
+}
+
+if(isset($_POST['deleteunused'])) {
+	foreach($unused_files as $f) {
+		@unlink('./levels/' . $f);
+	}
+	foreach($unused_png as $f) {
+		@unlink('./levels/' . $f);
+	}
+	$unused_files = array();
+	$unused_png = array();
 }
 
 ?>
@@ -148,7 +175,11 @@ foreach($files as $file) {
 </table>
 </form>
 <p>Unused files: <?php echo implode($unused_files, ', '); ?></p>
-<br />
-<a href="/rwa/">Back to RWK:AE</a> | Yay for <a href="http://www.famfamfam.com/lab/icons/silk/">Silk</a> set!
+<p>Unreferenced png files: <?php echo implode($unused_png, ', '); ?></p>
+<form action="mod.php" method="post" onsubmit="return confirm('Are you sure you want to clear all unused files?');">
+<input type="hidden" name="deleteunused" value="1" />
+<p><input type="submit" value="Delete all unused files" /><br />In general, don't use this. SpaceManaic'll take care of it if it gets too big.</p>
+</form>
+<p>Yay for <a href="http://www.famfamfam.com/lab/icons/silk/">Silk</a> set!</p>
 
 <?php WombatFoot(); ?>
