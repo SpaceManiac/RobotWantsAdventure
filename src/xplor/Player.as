@@ -35,9 +35,10 @@
 		protected static const POWER_BLUKEY:int = 6;
 		protected static const POWER_GRNKEY:int = 7;
 		protected static const POWER_RAPID:int = 8;
+		protected static const POWER_MISSILE:int = 9;
 		
 		public var justdied:Boolean = false;
-		protected var powers:Array,bullets:Array;
+		protected var powers:Array,bullets:Array,missiles:Array;
 		protected var map:FlxTilemap;
 		protected var startx:int, starty:int;
 		protected var reload:int;
@@ -50,7 +51,7 @@
 		protected var dashed:Boolean;
 		protected var justTeleported:Boolean = false;
 		
-		public function Player(x:int,y:int,map:FlxTilemap,bullets:Array)
+		public function Player(x:int,y:int,map:FlxTilemap,bullets:Array,missiles:Array)
 		{
 			
 			startx = x * 16;
@@ -74,6 +75,7 @@
 			
 			powers = new Array();
 			this.bullets = bullets;
+			this.missiles = missiles;
 			reload = 0;
 			airjump = 0;
 			rocket = FlxG.state.add(new FlxEmitter(0, 0, 5, 5, null, 0.05, -10, 10, 0, 300, 0,0, 600, 5, rocketPic, 12, true)) as FlxEmitter;
@@ -84,7 +86,7 @@
 			dashed = false;
 			
 			if (ConfigState.PowerStart) {
-				for (var i:uint = 0; i <= 8; ++i) powers[i] = true;
+				for (var i:uint = 0; i <= 9; ++i) powers[i] = true;
 			}
 		}
 
@@ -128,7 +130,7 @@
 			if (FlxG.keys.DOWN && velocity.y==0)
 			{
 				play("duck");
-				if (FlxG.keys.justPressed("Z"))
+				if (FlxG.keys.justPressed("Z")) //Rocket upwards
 				{
 					if (powers[POWER_ROCKET] == 1)
 					{
@@ -141,6 +143,27 @@
 					{
 						velocity.y = -JUMP_ACCELERATION;
 						FlxG.play(jumpSnd);
+					}
+				}
+				else if (FlxG.keys.justPressed("X")) //Fire upwards missile
+				{
+					if (powers[POWER_MISSILE]==1 && reload == 0)
+					{
+						for each(var m:Missile in missiles)
+						{
+							var missilespeed:int;
+							missilespeed = -200;
+							
+							reload = 30;
+							if (powers[POWER_RAPID] == 1)
+								reload = 5;
+							
+							if (m.exists == false)
+							{
+								m.shoot(x, y, 0, missilespeed);
+								break;
+							}
+						}
 					}
 				}
 			}

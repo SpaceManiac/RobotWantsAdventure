@@ -18,6 +18,7 @@
 		protected var timerTxt:FlxText;
 		protected var timer:Number;
 		protected var bullets:Array;
+		protected var missiles:Array;
 		protected var kitty:Kitty;
 		protected var bombs:Array;
 		
@@ -48,7 +49,7 @@
 			{
 				if (a[i] == 255)	// player start
 				{
-					player = new Player(i%256,i/256,tileMap,bullets);
+					player = new Player(i%256,i/256,tileMap,bullets,missiles);
 					this.add(player);
 					FlxG.follow(player, 2.5);
 					a[i] = 0;
@@ -127,10 +128,13 @@
 			super();
 			enemies = new Array();
 			bullets = new Array();
+			missiles = new Array();
 			bombs = new Array();
 			
 			for (var i:int = 0; i < 20; i++)
 				bullets.push(this.add(new Laser()));
+			for (i = 0; i < 20; i++)
+				missiles.push(this.add(new Missile()));
 			for (i= 0; i < 20; i++)
 				bombs.push(this.add(new Bomb()));
 				
@@ -150,6 +154,16 @@
 			if (guy is Alien2) justdied = Alien2(guy).justdied;
 			if (justdied) timer -= ConfigState.KillBonus;
 		}
+		
+		private function MissileShotGuy(missile:FlxSprite,guy:FlxSprite):void
+		{
+			missile.hurt(0);
+			guy.hurt(5); //Not sure what this value should be
+			var justdied:Boolean = false;
+			if (guy is Alien) justdied = Alien(guy).justdied;
+			if (guy is Alien2) justdied = Alien2(guy).justdied;
+			if (justdied) timer -= ConfigState.KillBonus;
+		}
 
 		private function PlayerBumped(enemy:FlxSprite, player:FlxSprite):void
 		{
@@ -162,9 +176,11 @@
 			tileMap.collide(player);
 			tileMap.collideArray(enemies);
 			tileMap.collideArray(bullets);
+			tileMap.collideArray(missiles);
 			tileMap.collideArray(bombs);
 			FlxG.overlapArray(bombs, player, PlayerBumped);
 			FlxG.overlapArrays(bullets, enemies, LaserShotGuy);
+			FlxG.overlapArrays(missiles, enemies, MissileShotGuy);
 			FlxG.overlapArray(enemies, player, PlayerBumped);
 			if (Math.abs(player.x - kitty.x) < 30 && Math.abs(player.y - kitty.y) < 30)
 				FlxG.switchState(WinState);
