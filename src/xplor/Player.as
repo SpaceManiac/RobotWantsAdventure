@@ -331,6 +331,12 @@
 				powers[POWER_RAPID] = 1;
 				FlxG.play(powerupSnd);
 			}
+			else if (tile == 19)	// Missiles
+			{
+				map.setTile(tx, ty, 0);
+				powers[POWER_MISSILE] = 1;
+				FlxG.play(powerupSnd);
+			}
 			
 			if (tile == 16 || tile == 17 || tile == 18) // green, blue, red teleporters
 			{

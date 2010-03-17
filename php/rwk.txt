@@ -18,6 +18,7 @@
 16 506c13 // dark green - green teleporter
 17 30249b // dark blue - blue teleporter
 18 ac1702 // dark red - red teleporter
+19 ff6d0d // darker orange - mega missile powerup
 //
 50 ffffff // white - solid wall
 // note - giant blocks are placed automatically
