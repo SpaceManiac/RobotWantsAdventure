@@ -136,19 +136,21 @@
 			bullets = new Array();
 			missiles = new Array();
 			bombs = new Array();
-			
-			for (var i:int = 0; i < 20; i++)
-				bullets.push(this.add(new Laser()));
-			for (i = 0; i < 20; i++)
-				missiles.push(this.add(new Missile()));
-			for (i= 0; i < 20; i++)
-				bombs.push(this.add(new Bomb()));
 				
 			timer = 0;
 			LoadMap();
 			timerTxt = new FlxText(0, 0, 100, "0:00", 0xffffffff, null, 8, "center");
 			if (ConfigState.Timer) add(timerTxt);
 			TimerText();
+			
+			
+			
+			for (var i:int = 0; i < 20; i++)
+				bullets.push(this.add(new Laser()));
+			for (i = 0; i < 20; i++)
+				missiles.push(this.add(new Missile(tileMap)));
+			for (i= 0; i < 20; i++)
+				bombs.push(this.add(new Bomb()));
 		}
 		
 		private function LaserShotGuy(laser:FlxSprite,guy:FlxSprite):void

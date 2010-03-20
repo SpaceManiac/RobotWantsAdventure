@@ -13,9 +13,12 @@
 		protected var shootSnd:Class;
 		[Embed(source="../../data/laserhit.mp3")] 
 		protected var hitSnd:Class;
+		
+		private var map:FlxTilemap;
 
-		public function Missile()
+		public function Missile(map:FlxTilemap)
 		{
+			this.map = map;
 			super(MissileImage,0,0,true,true);
 
 			exists = false;
@@ -52,7 +55,8 @@
 		}
 		
 		override public function hitCeiling(Contact:FlxCore = null):Boolean 
-		{ 
+		{
+			map.setTile(x / 16, y / 16, 2);
 			hurt(0); 
 			FlxG.play(hitSnd);
 			return true; 
