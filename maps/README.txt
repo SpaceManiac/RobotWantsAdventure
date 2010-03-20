@@ -1,1 +1,0 @@
-The /maps directory holds the original image versions of all the maps.
