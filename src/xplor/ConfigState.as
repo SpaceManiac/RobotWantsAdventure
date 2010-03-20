@@ -315,6 +315,7 @@
 			if (MapI == -1) {
 				FlxG.log("No map chosen, skipping download");
 				if (finishedStage) {
+					TitleState.Adventure = maplist[MapI]['name'] + " by " + maplist[MapI]['author'];
 					FlxG.switchState(TitleState);
 				} else {
 					finishedStage = true;
@@ -339,6 +340,7 @@
 			Map = b;
 			
             if (finishedStage) {
+				TitleState.Adventure = maplist[MapI]['name'] + " by " + maplist[MapI]['author'];
 				FlxG.switchState(TitleState);
 			} else {
 				finishedStage = true;
@@ -348,6 +350,7 @@
 		
         private function onFade():void {
             if (finishedStage) {
+				TitleState.Adventure = maplist[MapI]['name'] + " by " + maplist[MapI]['author'];
 				FlxG.switchState(TitleState);
 			} else {
 				finishedStage = true;
