@@ -15,11 +15,13 @@ approval automatically!</p>
 <p><b>Programming</b><br />
 <a href="http://hamumu.com/">Hamumu</a><br />
 SpaceManiac<br />
-AtkinsSJ</p>
+AtkinsSJ<br />
+Blackduck</p>
 
 <p><b>Graphics</b><br />
 <a href="http://hamumu.com/">Hamumu</a><br />
-PurpleKoopa</p>
+PurpleKoopa<br />
+AtkinsSJ</p>
 
 <p><b>Moderation Team</b><br />
 SpaceManiac<br />
