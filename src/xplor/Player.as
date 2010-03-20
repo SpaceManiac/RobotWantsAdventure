@@ -279,6 +279,17 @@
 				powers[POWER_JUMP] = 1;
 				FlxG.play(powerupSnd);
 			}
+			if (map.getTile(tx,ty) == 30)	// checkpoint!
+			{
+				if (map.getTile(int(startx / 16), int(starty / 16)) == 31)
+				{
+					map.setTile(int(startx / 16), int(starty / 16), 30);
+				}
+				startx = tx * 16;
+				starty = ty * 16;
+				map.setTile(tx, ty, 31);
+				//PlayState(FlxG.state).SetHelp(x, y, "Robot Pattern Encorded!");
+			}
 			else if (tile == 5)	// shoot power!
 			{
 				map.setTile(tx, ty, 0);

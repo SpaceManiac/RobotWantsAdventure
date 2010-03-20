@@ -62,6 +62,12 @@
 					kitty = new Kitty(i % 256, i / 256);
 					this.add(kitty);
 				}
+				if (a[i] == 24)	// Drippazorg
+				{
+					a[i] = 0;
+					tileMap.setTileByIndex(i, 0);
+					enemies.push(this.add(new Drip(i % 256, i / 256, a, bombs, player)));
+				}
 				if (a[i] == 3)	// sideways walkers
 				{
 					a[i] = 0;

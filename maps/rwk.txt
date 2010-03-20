@@ -15,6 +15,8 @@
 13 0520ff // blue - blue key
 14 db9de5 // pinkish purple - boss monster
 15 f8ff1f // bright yellow - high-speed powerup
+24 6f3198 // dark purple - Drippazorg
+30 b4b4b4 //checkpoints
 //
 50 ffffff // white - solid wall
 // note - giant blocks are placed automatically
