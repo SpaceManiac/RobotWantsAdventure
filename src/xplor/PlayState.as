@@ -21,6 +21,9 @@
 		protected var missiles:Array;
 		protected var kitty:Kitty;
 		protected var bombs:Array;
+		protected var checkpoint:Checkpoint;
+		public var BGLayer:FlxLayer;
+		public var MainLayer:FlxLayer;
 		
 		public function LoadMap():void
 		{
@@ -50,7 +53,7 @@
 				if (a[i] == 255)	// player start
 				{
 					player = new Player(i%256,i/256,tileMap,bullets,missiles);
-					this.add(player);
+					MainLayer.add(player);
 					FlxG.follow(player, 2.5);
 					a[i] = 0;
 					tileMap.setTileByIndex(i, 0);
@@ -61,6 +64,13 @@
 					tileMap.setTileByIndex(i, 0);
 					kitty = new Kitty(i % 256, i / 256);
 					this.add(kitty);
+				}
+				if (a[i] == 30)	//checkpoint
+				{
+					a[i] = 0;
+					tileMap.setTileByIndex(i, 0);
+					checkpoint = new Checkpoint(i % 256, i / 256);
+					BGLayer.add(checkpoint);
 				}
 				if (a[i] == 24)	// Drippazorg
 				{
@@ -132,6 +142,10 @@
 		{
 			FlxG.log("PlayState opened");
 			super();
+			MainLayer = new FlxLayer();
+			BGLayer = new FlxLayer();
+			this.add(BGLayer);
+			this.add(MainLayer);
 			enemies = new Array();
 			bullets = new Array();
 			missiles = new Array();
@@ -189,8 +203,16 @@
 			FlxG.overlapArrays(missiles, enemies, MissileShotGuy);
 			FlxG.overlapArray(enemies, player, PlayerBumped);
 			if (Math.abs(player.x - kitty.x) < 30 && Math.abs(player.y - kitty.y) < 30)
+			{
 				FlxG.switchState(WinState);
-				
+			}
+			if (Math.abs(player.x - checkpoint.x) < 16 && Math.abs(player.y - checkpoint.y) < 16)
+			{
+				checkpoint.addAnimation("activated", [1, 2, 3], 20 , true);
+				checkpoint.play("activated");
+				player.startx = player.tx * 16;
+				player.starty = player.ty * 16;
+			}	
 			if (FlxG.keys.justPressed("R")) {
 				player.Die();
 			}

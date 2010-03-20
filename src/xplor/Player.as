@@ -40,7 +40,7 @@
 		public var justdied:Boolean = false;
 		protected var powers:Array,bullets:Array,missiles:Array;
 		protected var map:FlxTilemap;
-		protected var startx:int, starty:int;
+		public var startx:int, starty:int;
 		protected var reload:int;
 		protected var airjump:int;
 		protected var rocket:FlxEmitter;
@@ -50,6 +50,8 @@
 		protected var dashTime:int;
 		protected var dashed:Boolean;
 		protected var justTeleported:Boolean = false;
+		
+		public var tx:int, ty:int;
 		
 		public function Player(x:int,y:int,map:FlxTilemap,bullets:Array,missiles:Array)
 		{
@@ -267,8 +269,6 @@
 					}
 				}
 			}
-				
-			var tx:int, ty:int;
 			
 			tx = (x + 4) / 16;
 			ty = (y + 8) / 16;
