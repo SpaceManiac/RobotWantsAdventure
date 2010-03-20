@@ -20,6 +20,9 @@
 18 ac1702 // dark red - red teleporter
 19 ff6d0d // darker orange - mega missile powerup
 //
+24 6f3198 // dark purple - Drippazorg
+30 b4b4b4 // grayish - checkpoints
+//
 50 ffffff // white - solid wall
 // note - giant blocks are placed automatically
 //

@@ -191,6 +191,10 @@
 			if (Math.abs(player.x - kitty.x) < 30 && Math.abs(player.y - kitty.y) < 30)
 				FlxG.switchState(WinState);
 				
+			if (FlxG.keys.justPressed("R")) {
+				player.Die();
+			}
+				
 			if (player.x > kitty.x) {
 				kitty.facing = FlxSprite.RIGHT;
 			} else if (player.x < kitty.x) {

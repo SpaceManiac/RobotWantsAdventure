@@ -97,7 +97,10 @@ Eyedropper and pencil tool away - it's level building time! Here's the expanded 
 <b><i>X</i> KEY</b> - red, green, & blue keys<br />
 <b>&nbsp;BOSS</b> - the boss monster <br />
 <b><i>X</i> GAT</b> - red, green, & blue gates (doors) <br />
-<b><i>X</i> TEL</b> - red, green, & blue teleporters (implemented!)
+<b><i>X</i> TEL</b> - red, green, & blue teleporters (yay!)<br />
+<b>MISSILE</b> - mega missile powerup<br />
+<b>&nbsp;DRIP</b> - Drippazorg hanging alien thingy<br />
+<b>CHECK</b> - checkpoint! When you die, you go to the last activated one
 </code>
 
 <h2><a name="submit">3. Submit your level</a></h2>
