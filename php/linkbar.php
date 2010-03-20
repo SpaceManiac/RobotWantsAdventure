@@ -1,4 +1,5 @@
 <a href="/rwa/">Play</a> |
+<a href="/rwa/cheat.php">Cheat Edition</a> |
 <a href="http://github.com/SpaceManiac/RobotWantsAdventure">Contribute</a> |
 <a href="/rwa/about.php">About Adventure Edition</a> |
 <a href="/rwa/upload.php">Upload a level!</a> |

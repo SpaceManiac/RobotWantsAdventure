@@ -388,6 +388,8 @@
 				this.velocity.x = 0;
 				this.velocity.y = 0;
 				FlxG.play(teleportSnd);
+				FlxG.scroll.x = this.x;
+				FlxG.scroll.y = this.y; 
 			}
 		}
 

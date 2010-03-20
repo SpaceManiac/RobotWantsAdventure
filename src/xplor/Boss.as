@@ -24,9 +24,11 @@
 		protected var player:Player;
 		private var justhit:Boolean = false;
 		
+		private var healthbar:HealthBar = null;
+		
 		public function Boss(x:int,y:int,map:Array,bombs:Array,player:Player) 
 		{
-			super(AlienImage, x*16, y*16, true,true);
+			super(AlienImage, x * 16, y * 16, true, true);
    
 			this.player = player;
 			this.bombs = bombs;
@@ -57,6 +59,15 @@
 				
 			if (reload)
 				reload--;
+				
+			if (healthbar == null) {
+				healthbar = new HealthBar(this.x, this.y, ConfigState.BossHealth, 64);
+				FlxG.state.add(healthbar);
+			}
+			
+			healthbar.x = this.x;
+			healthbar.y = this.y - 10;
+			healthbar.current = this.health;
 				
 			xx = x + width / 2;
 			yy = y + height / 2;
@@ -90,6 +101,7 @@
 			super.hurt(dmg);
 			if (dead)
 			{
+				healthbar.exists = false;
 				FlxG.play(dieSnd);
 				boom.x = x + width / 2;
 				boom.y = y + height / 2;

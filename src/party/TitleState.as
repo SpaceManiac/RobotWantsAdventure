@@ -18,7 +18,8 @@
         {
 			FlxG.log("TitleState opened [party]");
 			var b:ByteArray = new BuildNum();
-			var s:String = b.readUTFBytes(b.length);
+			//var s:String = b.readUTFBytes(b.length);
+			var s:String = b.length.toString();
 			
             this.add(new FlxText(0, 20, FlxG.width, "Robot Wants Kitty:", 0xffffffff, null, 16, "center")) as FlxText;
             this.add(new FlxText(0, 36, FlxG.width, "Robot Party", 0xffffffff, null, 16, "center")) as FlxText;
