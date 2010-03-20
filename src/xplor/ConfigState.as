@@ -183,6 +183,12 @@
 			// large block factor
 			add(new FlxText(80, y += i, 120, "Large Block Factor: "));
 			add(lbfT = new FlxText(200, y, 200, LargeBlockFactor.toString() + "%"));
+			// drippazorg health
+			//add(new FlxText(80, y += i, 120, "Blue Alien Health: "));
+			//add(bahT = new FlxText(200, y, 200, BlueAlienHealth.toString()));
+			// drippazorg speed
+			//add(new FlxText(80, y += i, 120, "Blue Alien Speed: "));
+			//add(basT = new FlxText(200, y, 200, BlueAlienSpeed.toString()));
 			
 			loadMaps();
         }

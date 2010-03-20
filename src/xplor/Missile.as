@@ -6,6 +6,7 @@
 	{
 		//Please change the missile graphic as mine is awful!
 		//Also, please add sounds.
+		
 		[Embed(source="../../data/missile.png")] 
 		private var MissileImage:Class;
 		[Embed(source="../../data/laser.mp3")]
@@ -18,9 +19,12 @@
 			super(MissileImage,0,0,true,true);
 
 			exists = false;
+			
+			width = 10;
+			offset.x = 3;
 
-			addAnimation("shoot",[0]);
-			addAnimation("pop",[1,2,3], 50, false);
+			addAnimation("shoot",[0,1], 50);
+			addAnimation("pop",[2,3,4], 50, false);
 		}
 		
 		override public function update():void

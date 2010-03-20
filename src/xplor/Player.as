@@ -147,7 +147,7 @@
 						FlxG.play(jumpSnd);
 					}
 				}
-				else if (FlxG.keys.justPressed("X")) //Fire upwards missile
+				else if (FlxG.keys.X) //Fire upwards missile
 				{
 					if (powers[POWER_MISSILE]==1 && reload == 0)
 					{
@@ -156,12 +156,12 @@
 							var missilespeed:int;
 							missilespeed = -200;
 							
-							reload = 30;
-							if (powers[POWER_RAPID] == 1)
-								reload = 5;
-							
 							if (m.exists == false)
 							{
+								reload = 50;
+								if (powers[POWER_RAPID] == 1) {
+									reload = 20;
+								}
 								m.shoot(x, y, 0, missilespeed);
 								break;
 							}
@@ -279,14 +279,14 @@
 				powers[POWER_JUMP] = 1;
 				FlxG.play(powerupSnd);
 			}
-			if (map.getTile(tx,ty) == 30)	// checkpoint!
+			else if (map.getTile(tx,ty) == 30)	// checkpoint!
 			{
 				if (map.getTile(int(startx / 16), int(starty / 16)) == 31)
 				{
 					map.setTile(int(startx / 16), int(starty / 16), 30);
 				}
-				startx = tx * 16;
-				starty = ty * 16;
+				startx = tx * 16 + 4;
+				starty = ty * 16 + 2;
 				map.setTile(tx, ty, 31);
 				//PlayState(FlxG.state).SetHelp(x, y, "Robot Pattern Encorded!");
 			}
