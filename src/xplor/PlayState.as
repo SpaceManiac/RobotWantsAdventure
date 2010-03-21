@@ -1,5 +1,6 @@
 ﻿package xplor 
 {
+	import flash.geom.Point;
 	import flash.utils.ByteArray;
 	import org.flixel.*;
 	
@@ -21,6 +22,7 @@
 		protected var missiles:Array;
 		protected var kitty:Kitty;
 		protected var bombs:Array;
+		protected var bg:Background;
 		
 		public function LoadMap():void
 		{
@@ -132,6 +134,10 @@
 		{
 			FlxG.log("PlayState opened");
 			super();
+			
+			bg = new Background();
+			add(bg);
+			
 			enemies = new Array();
 			bullets = new Array();
 			missiles = new Array();
@@ -143,14 +149,13 @@
 			if (ConfigState.Timer) add(timerTxt);
 			TimerText();
 			
-			
-			
 			for (var i:int = 0; i < 20; i++)
 				bullets.push(this.add(new Laser()));
 			for (i = 0; i < 20; i++)
 				missiles.push(this.add(new Missile(tileMap)));
 			for (i= 0; i < 20; i++)
 				bombs.push(this.add(new Bomb()));
+			
 		}
 		
 		private function LaserShotGuy(laser:FlxSprite,guy:FlxSprite):void
