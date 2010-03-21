@@ -13,28 +13,9 @@
 		[Embed(source="../../data/powerup.mp3")] 
 		protected var hitSnd:Class;
 		
-		/*
-		[Embed(source = "../../data/maps/classic.raw", mimeType="application/octet-stream")]
-		protected static var MClassic:Class;
-		[Embed(source = "../../data/maps/kittycaptured_rb.raw", mimeType="application/octet-stream")]
-		protected static var MKittyCaptured:Class;
-		[Embed(source = "../../data/maps/awesometown_molt.raw", mimeType="application/octet-stream")]
-		protected static var MAwesomeTown:Class;
-		[Embed(source = "../../data/maps/another_megadog.raw", mimeType="application/octet-stream")]
-		protected static var MAnotherLevel:Class;
-		[Embed(source = "../../data/maps/koopacavern_pk.raw", mimeType="application/octet-stream")]
-		protected static var MKoopaCavern:Class;
-		[Embed(source = "../../data/maps/smallmap_cliffy.raw", mimeType="application/octet-stream")]
-		protected static var MSmallMap:Class;
-		[Embed(source = "../../data/maps/thetower_bowserfan.raw", mimeType="application/octet-stream")]
-		protected static var MTheTower:Class;
-		[Embed(source = "../../data/maps/yesh_yourter.raw", mimeType="application/octet-stream")]
-		protected static var MYesh:Class;
-		*/
-		
-		//public static var Map:Class = MClassic; //
-		public static var Map:ByteArray;
-		public static var MapI:int = -1; //
+		public static const CNT_C:int = 0;
+		public static const CNT_DT:int = 1;
+		public static var Controls:int = 0; // 0 = C/Duck-C, 1 = Double-tap/Duck-jump
 		public static var PowerStart:Boolean = false; //
 		public static var DuckJump:Boolean = false; //
 		
@@ -53,11 +34,8 @@
 		public static var RocketOnFloor:Boolean = true;
 		public static var LargeBlockFactor:uint = 50;
 		
-		private var maplist:Array;
-		
 		private var arrow:FlxText;
-		private var mapT:FlxText;
-		private var maplT:FlxText;
+		private var contT:FlxText;
 		private var powerT:FlxText;
 		private var duckjT:FlxText;
 		private var timerT:FlxText;
@@ -74,64 +52,13 @@
 		
 		public static var testing:uint = 0;
 		
-		/* private var mapnames:Array = ["Original Level\n by Hamumu",
-				"Kitty Got Captured!\n by Redbone",
-				"Awesome Town\n by Moltanem2000",
-				"Another Level\n by Megadog",
-				"Koopa Cavern\n by PurpleKoopa",
-				"Small Map\n by Cliffy1000",
-				"The Tower\n by Bowserfan",
-				"YESH!\n by Yourter12"]; */
-		
 		private var fading:Boolean = false;
-		private var finishedStage:Boolean = false;
 		private var selection:uint = 0;
-		
-		private var timeout:uint = 0;
-		
-		private function loadMaps():void {
-			FlxG.log("Downloading map list");
-			mapT.text = "Downloading list...";
-			var req:URLRequest = new URLRequest("http://wombat.platymuus.com/rwa/levellist.php?testing=" + testing.toString());
-			var loader:URLLoader = new URLLoader();
-			loader.addEventListener(Event.COMPLETE, loadMapsCallback);
-			timeout = setTimeout(loadMapsTimeout, 5000);
-			loader.load(req);
-		}
-		
-		private function loadMapsCallback(event:Event):void {
-			if (timeout == 0) {
-				return;
-			}
-			clearTimeout(timeout);
-			timeout = 0;
-			FlxG.log("Processing map list");
-			mapT.text = "Processing list...";
-			maplist = new Array();
-			var xml:XML = new XML(event.target.data);
-			for (var i:uint = 0; i < xml.level.length(); ++i) {
-				var mapd:Array = new Array();
-				mapd['id'] = xml.level[i].@id;
-				mapd['name'] = xml.level[i].name;
-				if (xml.level[i].@testing == 1) mapd['name'] += " *";
-				mapd['author'] = xml.level[i].author;
-				mapd['filename'] = xml.level[i].filename;
-				maplist[maplist.length] = mapd;
-			}
-			MapI = 0;
-			mapname();
-			FlxG.log("Done");
-		}
-		
-		private function loadMapsTimeout():void {
-			timeout = 0;
-			mapT.text = "Download timed out!\nOnly classic is available";
-			MapI = -1;
-		}
 		
         override public function ConfigState() {
 			FlxG.log("ConfigState opened");
-            add(new FlxText(0, 8, FlxG.width, "Settings Screen", 0xffffffff, null, 16, "center"));
+			this.add(new Background());
+            add(new FlxText(0, 8, FlxG.width, "Game Options", 0xffffffff, null, 16, "center"));
             add(new FlxText(0, FlxG.height  -20, FlxG.width, "Up/down to select, l/r to change", 0xffffffff, null, 8, "center"));
             add(new FlxText(0, FlxG.height  -12, FlxG.width, "Press Z to return", 0xffffffff, null, 8, "center"));
 			
@@ -139,11 +66,10 @@
 			arrow = new FlxText(70, 32, 10, ">");
 			add(arrow);
 			var i:uint = 11, y:uint = 32 - i;
-			// map
-			add(new FlxText(80, y += i, 120, "Adventure: "));
-			add(mapT = new FlxText(200, y, 200, ""));
-			add(maplT = new FlxText(100, y + 10, 120, ""));
-			y += i;
+			
+			// controls
+			add(new FlxText(80, y += i, 120, "Rocket Control: "));
+			add(contT = new FlxText(200, y, 200, "C-based"));
 			// super start
 			add(new FlxText(80, y += i, 120, "Start Superpowered: "));
 			add(powerT = new FlxText(200, y, 200, boolstr(PowerStart)));
@@ -190,7 +116,7 @@
 			//add(new FlxText(80, y += i, 120, "Blue Alien Speed: "));
 			//add(basT = new FlxText(200, y, 200, BlueAlienSpeed.toString()));
 			
-			loadMaps();
+			add(new Cursor());
         }
 		
 		private function boolstr(x:Boolean):String {
@@ -198,15 +124,9 @@
 			else return "off";
 		}
 		
-		private function mapname():void {
-			mapT.text = maplist[MapI]['name'] + "\n  by " + maplist[MapI]['author'];
-			maplT.text = (MapI + 1).toString() + "/" + maplist.length.toString();
-		}
-		
         override public function update():void {
             if (FlxG.keys.Z && !fading) {
 				fading = true;
-				downloadMap();
 				FlxG.flash(0xffffffff, 0.75);
 				FlxG.fade(0xff000000, 0.5, onFade);
 				FlxG.play(hitSnd);
@@ -219,13 +139,17 @@
 				if (selection < 13) selection++;
 			}
 			arrow.y = 32 + 11 * selection;
-			if (selection > 0) arrow.y += 11;
 			
+			var ctrlText:Array = ["C-based", "Double-tap-based"];
 			
 			if (FlxG.keys.justPressed("LEFT")) {
-				if (selection == 0 && MapI >= 0) {
-					if (MapI > 0) MapI--;
-					mapname();
+				if (selection == 0) {
+					if (Controls == 0) {
+						Controls = 1;
+					} else {
+						Controls = 0;
+					}
+					contT.text = ctrlText[Controls];
 				} else if (selection == 1) {
 					PowerStart = !PowerStart;
 					powerT.text = boolstr(PowerStart);
@@ -269,9 +193,13 @@
 			}
 			
 			if (FlxG.keys.justPressed("RIGHT")) {
-				if (selection == 0 && MapI != -1) {
-					if (MapI < maplist.length - 1) MapI++;
-					mapname();
+				if (selection == 0) {
+					if (Controls == 0) {
+						Controls = 1;
+					} else {
+						Controls = 0;
+					}
+					contT.text = ctrlText[Controls];
 				} else if (selection == 1) {
 					PowerStart = !PowerStart;
 					powerT.text = boolstr(PowerStart);
@@ -317,49 +245,8 @@
             super.update();
         }
 		
-		private function downloadMap():void {
-			if (MapI == -1) {
-				FlxG.log("No map chosen, skipping download");
-				if (finishedStage) {
-					FlxG.switchState(TitleState);
-				} else {
-					finishedStage = true;
-				}
-				return;
-			}
-			FlxG.log("Downloading map " + maplist[MapI]['filename']);
-			var req:URLRequest = new URLRequest("http://wombat.platymuus.com/rwa/levels/" + maplist[MapI]['filename']);
-			var loader:URLLoader = new URLLoader();
-			loader.addEventListener(Event.COMPLETE, downloadMapCallback);
-			loader.load(req);
-		}
-		
-		private function downloadMapCallback(event:Event):void {
-			FlxG.log("Processing map");
-			var b:ByteArray = new ByteArray();
-			var data:String = event.target.data;
-			b.position = 0;
-			for (var i:uint = 0; i < data.length; ++i) {
-				b.writeByte(data.charCodeAt(i));
-			}
-			Map = b;
-			
-            if (finishedStage) {
-				TitleState.Adventure = maplist[MapI]['name'] + " by " + maplist[MapI]['author'];
-				FlxG.switchState(TitleState);
-			} else {
-				finishedStage = true;
-			}
-			FlxG.log("Done");
-		}
-		
         private function onFade():void {
-            if (finishedStage) {
-				TitleState.Adventure = maplist[MapI]['name'] + " by " + maplist[MapI]['author'];
-				FlxG.switchState(TitleState);
-			} else {
-				finishedStage = true;
-			}
+			FlxG.switchState(TitleState);
         }
     }
 }

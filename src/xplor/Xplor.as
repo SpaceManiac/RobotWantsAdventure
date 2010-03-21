@@ -10,8 +10,10 @@
 		{
 			super(320, 240, TitleState, 2, 0xFF000000, false);
 			help("Shoot", "Nothing", "Nothing", "Move");
+			useDefaultHotKeys = true;
+			//useHandCursor = true;
 		}
-				public static const FX_VOL:Number = 0.07;
+		public static const FX_VOL:Number = 0.07;
 	}
 	
 }

@@ -10,6 +10,8 @@
 		protected var shootSnd:Class;
 		[Embed(source="../../data/laserhit.mp3")] 
 		protected var hitSnd:Class;
+		
+		protected var ext:String = "";
 
 		public function Bomb()
 		{
@@ -19,7 +21,9 @@
 
 			addAnimation("shoot", [1, 2, 3, 2], 30, true);
 			addAnimation("pop", [1, 2, 3], 50, false);
-			//addAnimation("shoot_green"
+
+			addAnimation("shoot_g", [5, 6, 7, 6], 30, true);
+			addAnimation("pop_g", [5, 6, 7], 50, false);
 		}
 		
 		override public function update():void
@@ -61,12 +65,13 @@
 			velocity.x = 0;
 			velocity.y = 0;
 			dead = true;
-			play("pop");
+			play("pop" + ext);
 			
 		}
 
-		public function shoot(X:int, Y:int, VelocityX:int, VelocityY:int):void
+		public function shoot(X:int, Y:int, VelocityX:int, VelocityY:int, ext:String = ""):void
 		{
+			this.ext = ext;
 			super.reset(X,Y);
 			velocity.x = VelocityX;
 			velocity.y = VelocityY;
@@ -75,7 +80,7 @@
 			else
 				facing = LEFT;
 			FlxG.play(shootSnd);	
-			play("shoot");
+			play("shoot" + ext);
 		}
 
 

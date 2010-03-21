@@ -6,6 +6,9 @@
 	
 	public class PlayState extends FlxState
 	{
+		[Embed(source="../../data/die.mp3")] 
+		protected var dieSnd:Class;
+		
 		[Embed(source = "../../data/tiles.png")] 
 		protected var TilesImage:Class;
 		private const mapWidth:int = 256;
@@ -29,10 +32,10 @@
 			FlxG.log("Loading map");
 			// get the loaded byte stream into a ByteArray
 			var b:ByteArray;
-			if (ConfigState.Map == null) {
+			if (AdvSelectState.Map == null) {
 				b = new BackupMap();
 			} else {
-				b = ConfigState.Map;
+				b = AdvSelectState.Map;
 			}
 			var a:Array = new Array();
 			b.position = 0;
@@ -214,6 +217,7 @@
 			if (FlxG.keys.justPressed("Q")) {
 				FlxG.flash(0xffffffff, 0.75);
 				FlxG.fade(0xff000000, 0.5, onFade);
+				FlxG.play(dieSnd);
 			}
 			timer += FlxG.elapsed;
 			TimerText();
