@@ -11,10 +11,13 @@
 		
 		protected var pic:FlxSprite;
 		
+		public static var time:String = "";
+		
         override public function WinState():void
         {
             pic = this.add(new FlxSprite(winPic, 0, 0)) as FlxSprite;
-			this.add(new FlxText(0, FlxG.height  -24, FlxG.width/2, "PRESS Z TO QUIT", 0xffffffff, null, 8, "center"));
+			this.add(new FlxText(0, FlxG.height  -24, FlxG.width/2, "Press Z to quit", 0xffffffff, null, 8, "center"));
+			this.add(new FlxText(FlxG.width/2, 2, FlxG.width/2, time, 0xffffffff, null, 8, "center"));
 			FlxG.play(winSnd);
         }
 		

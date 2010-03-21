@@ -197,6 +197,8 @@
 			FlxG.overlapArray(enemies, player, PlayerBumped);
 			if (Math.abs(player.x - kitty.x) < 30 && Math.abs(player.y - kitty.y) < 30)
 			{
+				TimerText();
+				WinState.time = "Your time: " + timerTxt.text;
 				FlxG.switchState(WinState);
 			}
 			if (FlxG.keys.justPressed("R")) {
