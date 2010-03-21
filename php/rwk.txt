@@ -29,6 +29,7 @@
 55 db6d70 // reddish - red door
 56 6dd65e // greenish - green door
 57 627ed2 // blueish - blue door
+58 b90746 // pinkish - missile-block
 //
 254 00f40f // greenish - kitty
 255 ff97ef // pinkish - robot

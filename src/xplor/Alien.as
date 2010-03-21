@@ -17,11 +17,11 @@
 		
 		protected static const SPEED:Number = 20;
 		protected static const HEALTH:int = 5;
-		protected var map:Array;
+		protected var map:FlxTilemap;
 		protected var boom:FlxEmitter;
 		public var justdied:Boolean;
 		
-		public function Alien(x:int,y:int,map:Array) 
+		public function Alien(x:int,y:int,map:FlxTilemap) 
 		{
 			super(AlienImage, x*16, y*16, true,true);
    
@@ -46,7 +46,7 @@
 			xx /= 16;
 			yy /= 16;
 			
-			if (map[xx + yy * 256] <50)	// can't go, would fall
+			if (map.getTile(xx, yy) <50)	// can't go, would fall
 			{
 				velocity.x = -velocity.x;
 			}

@@ -17,8 +17,9 @@
 
 			exists = false;
 
-			addAnimation("shoot",[1,2,3,2],30,true);
-			addAnimation("pop",[1,2,3], 50, false);
+			addAnimation("shoot", [1, 2, 3, 2], 30, true);
+			addAnimation("pop", [1, 2, 3], 50, false);
+			//addAnimation("shoot_green"
 		}
 		
 		override public function update():void

@@ -19,12 +19,12 @@
 		public function Missile(map:FlxTilemap)
 		{
 			this.map = map;
-			super(MissileImage,0,0,true,true);
+			super(MissileImage, 0, 0, true, true);
 
 			exists = false;
 			
-			width = 10;
-			offset.x = 3;
+			width = 8;
+			offset.x = 4;
 
 			addAnimation("shoot",[0,1], 50);
 			addAnimation("pop",[2,3,4], 50, false);
@@ -42,21 +42,26 @@
 		
 		override public function hitWall(Contact:FlxCore = null):Boolean 
 		{
-			hurt(0); 
-			FlxG.play(hitSnd);
-			return true; 
+			return false;
 		}
 		
 		override public function hitFloor(Contact:FlxCore = null):Boolean 
 		{ 
-			hurt(0); 
-			FlxG.play(hitSnd);
-			return true; 
+			return false;
 		}
 		
 		override public function hitCeiling(Contact:FlxCore = null):Boolean 
 		{
-			map.setTile(x / 16, y / 16, 2);
+			var tx:int = x / 16;
+			var ty:int = y / 16;
+			if (map.getTile(tx, ty) == 58) {
+				map.setTile(tx, ty, 0);
+			}
+			tx = (x + width) / 16;
+			if (map.getTile(tx, ty) == 58) {
+				map.setTile(tx, ty, 0);
+			}
+			
 			hurt(0); 
 			FlxG.play(hitSnd);
 			return true; 
@@ -75,6 +80,8 @@
 
 		public function shoot(X:int, Y:int, VelocityX:int, VelocityY:int):void
 		{
+			new DebugDot(X, Y);
+			
 			super.reset(X,Y);
 			velocity.x = VelocityX;
 			velocity.y = VelocityY;

@@ -72,7 +72,7 @@
 				{
 					a[i] = 0;
 					tileMap.setTileByIndex(i, 0);
-					enemies.push(this.add(new Alien(i % 256, i / 256, a)));
+					enemies.push(this.add(new Alien(i % 256, i / 256, tileMap)));
 				}
 				if (a[i] == 10)	// flyers
 				{
