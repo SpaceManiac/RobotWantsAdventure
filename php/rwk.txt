@@ -30,6 +30,7 @@
 56 6dd65e // greenish - green door
 57 627ed2 // blueish - blue door
 58 b90746 // pinkish - missile-block
+59 382323 // dark brown - fire-destructible block
 //
 254 00f40f // greenish - kitty
 255 ff97ef // pinkish - robot

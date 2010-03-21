@@ -80,7 +80,15 @@
 			this.missiles = missiles;
 			reload = 0;
 			airjump = 0;
-			rocket = FlxG.state.add(new FlxEmitter(0, 0, 5, 5, null, 0.05, -10, 10, 0, 300, 0,0, 600, 5, rocketPic, 12, true)) as FlxEmitter;
+			
+			var fireballs:Array = new Array();
+			for (var v:uint = 0; v < 20; ++v) {
+				var f:Fireball = new Fireball(map);
+				fireballs.push(f);
+				FlxG.state.add(f);
+			}
+			rocket = new FlxEmitter(0, 0, 5, 5, fireballs, 0.05, -10, 10, 0, 300, 0, 0, 600, 5, null, 12, true); 
+			FlxG.state.add(rocket);
 			rocket.kill();
 
 			timeToDoubleTap = 0;
@@ -399,8 +407,8 @@
 				this.velocity.x = 0;
 				this.velocity.y = 0;
 				FlxG.play(teleportSnd);
-				FlxG.scroll.x = this.x;
-				FlxG.scroll.y = this.y; 
+				FlxG.scroll.x = -this.x + FlxG.width/2;
+				FlxG.scroll.y = -this.y + FlxG.height/2; 
 			}
 		}
 

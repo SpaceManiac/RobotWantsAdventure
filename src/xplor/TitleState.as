@@ -22,6 +22,7 @@
 			var b:ByteArray = new BuildNum();
 			var s:String = b.readUTFBytes(b.length);
 			
+			this.add(new Background());
             this.add(new FlxText(0, 20, FlxG.width, "Robot Wants Kitty:", 0xffffffff, null, 16, "center")) as FlxText;
             this.add(new FlxText(0, 36, FlxG.width, "Adventure Edition", 0xffffffff, null, 16, "center")) as FlxText;
 			this.add(new FlxText(0, 90, FlxG.width + 1, "Build " + s, 0xffffffff, null, 8, "center"));

@@ -30,6 +30,7 @@ if (isset($_FILES['userfile']))
 		if($levelname == '') $levelname = "Untitled " . mt_rand(10, 99);
 		
 		$filename = makeTiny($levelname) . '_' . makeTiny($authorname) . '.png';
+		$filename = preg_replace('%[^a-zA-Z0-9.\-_]%', '', $filename);
 		
 		$newlocation = '/f5/wombatymuus/public/rwa/levels/' . $filename;
 		$i = 1;
@@ -101,7 +102,8 @@ Eyedropper and pencil tool away - it's level building time! Here's the expanded 
 <b>MISSILE</b> - mega missile powerup<br />
 <b>&nbsp;DRIP</b> - Drippazorg hanging alien thingy<br />
 <b>CHECK</b> - checkpoint! When you die, you go to the last activated one<br />
-<b>M-BLK</b> - missile-block (hit with mega missile to destroy)
+<b>M-BLK</b> - missile-block (hit with mega missile to destroy)<br />
+<b>&nbsp;WOOD</b> - wooden block gets destroyed by falling rocket boost thingies
 </code>
 
 <h2><a name="submit">3. Submit your level</a></h2>
