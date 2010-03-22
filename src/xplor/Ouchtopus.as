@@ -33,6 +33,8 @@
 			//health = ConfigState.RedAlienHealth;
 			health = 5;
 			
+			reload = int(Math.random() * 360);
+			
 			boom = FlxG.state.add(new FlxEmitter(0,0,10,10,null,-1,-60,60,-60,
 				60,-720,720,10,0,BlastImage,8,true)) as FlxEmitter;
 		}

@@ -40,21 +40,21 @@
 		override public function hitWall(Contact:FlxCore = null):Boolean 
 		{
 			hurt(0); 
-			FlxG.play(hitSnd);
+			if (onScreen()) FlxG.play(hitSnd);
 			return true; 
 		}
 		
 		override public function hitFloor(Contact:FlxCore = null):Boolean 
 		{ 
 			hurt(0); 
-			FlxG.play(hitSnd);
+			if (onScreen()) FlxG.play(hitSnd);
 			return true; 
 		}
 		
 		override public function hitCeiling(Contact:FlxCore = null):Boolean 
 		{ 
 			hurt(0); 
-			FlxG.play(hitSnd);
+			if (onScreen()) FlxG.play(hitSnd);
 			return true; 
 		}
 
@@ -79,7 +79,7 @@
 				facing = RIGHT;
 			else
 				facing = LEFT;
-			FlxG.play(shootSnd);	
+			if (onScreen()) FlxG.play(shootSnd);
 			play("shoot" + ext);
 		}
 
