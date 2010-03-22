@@ -125,7 +125,7 @@
 				mapText[MT_NAME].text = mapData["name"];
 				mapText[MT_AUTH].text = mapData["author"];
 				if (FirstMap + i == MapI) {
-					highlight.y = 32 + 11 * (i + 1);
+					highlight.y = 33 + 11 * (i + 1);
 					found = true;
 				}
 			}
@@ -146,6 +146,13 @@
 					MapI = FirstMap + int((y-43) / 11);
 					writeMapList();
 				}
+			}
+			
+			if (FlxG.keys.justPressed("DOWN")) {
+				dnbtnCallback();
+			}
+			if (FlxG.keys.justPressed("UP")) {
+				upbtnCallback();
 			}
 			
 			super.update();
