@@ -70,8 +70,9 @@
 			var i:uint = 11, y:uint = 32 - i;
 			
 			// controls
+			var ctrlText:Array = ["C-based", "Double-tap-based"];
 			add(new FlxText(80, y += i, 120, "Rocket Control: "));
-			add(contT = new FlxText(200, y, 200, "C-based"));
+			add(contT = new FlxText(200, y, 200, ctrlText[Controls]));
 			// super start
 			add(new FlxText(80, y += i, 120, "Start Superpowered: "));
 			add(powerT = new FlxText(200, y, 200, boolstr(PowerStart)));

@@ -140,7 +140,7 @@
 			if (FlxG.keys.DOWN && velocity.y==0)
 			{
 				play("duck");
-				if (FlxG.keys.justPressed("Z")) //Rocket upwards
+				if ((ConfigState.Controls == ConfigState.CNT_DT && FlxG.keys.justPressed("Z")) || (ConfigState.Controls == ConfigState.CNT_C && FlxG.keys.justPressed("C"))) //Rocket upwards
 				{
 					if (powers[POWER_ROCKET] == 1)
 					{
@@ -179,42 +179,51 @@
 			}
 			else
 			{
-				if (powers[POWER_DASH]==1 && FlxG.keys.justPressed("LEFT") && dashTime==0 && dashed==false && (ConfigState.RocketOnFloor || velocity.y!=0))
+				if (powers[POWER_DASH] == 1 && dashTime==0 && dashed==false && (ConfigState.RocketOnFloor || velocity.y!=0))
 				{
-					if (timeToDoubleTap > 0 && doubleTapDir==LEFT)
-					{
-						// rocket left
+					if(ConfigState.Controls == ConfigState.CNT_DT) {
+						if (timeToDoubleTap > 0)
+						{
+							if(doubleTapDir == LEFT && FlxG.keys.justPressed("LEFT")) {
+								velocity.x = -600;
+								velocity.y = 0;
+								maxVelocity.x = 600;
+								dashTime = 90;
+								FlxG.play(rocketSnd);
+								airjump = 1;
+								dashed = true;
+							} else if(doubleTapDir == RIGHT && FlxG.keys.justPressed("RIGHT")) {
+								velocity.x = 600;
+								velocity.y = 0;
+								maxVelocity.x = 600;
+								dashTime = 90;
+								FlxG.play(rocketSnd);
+								airjump = 1;
+								dashed = true;
+							}
+						}
+						else
+						{
+							if (FlxG.keys.justPressed("LEFT")) {
+								doubleTapDir = LEFT;
+								timeToDoubleTap = 15;
+							} else if (FlxG.keys.justPressed("RIGHT")) {
+								doubleTapDir = RIGHT;
+								timeToDoubleTap = 15;
+							}
+						}
+					} else if(ConfigState.Controls == ConfigState.CNT_C && FlxG.keys.justPressed("C")) {
 						velocity.y = 0;
-						velocity.x = -600;
 						maxVelocity.x = 600;
 						dashTime = 90;
 						FlxG.play(rocketSnd);
 						airjump = 1;
 						dashed = true;
-					}
-					else
-					{
-						timeToDoubleTap = 15;
-						doubleTapDir = LEFT;
-					}
-				}
-				if (powers[POWER_DASH]==1 && FlxG.keys.justPressed("RIGHT") && dashTime==0 && dashed==false && (ConfigState.RocketOnFloor || velocity.y!=0))
-				{
-					if (timeToDoubleTap > 0 && doubleTapDir==RIGHT)
-					{
-						// rocket right
-						velocity.y = 0;
-						velocity.x = 600;
-						maxVelocity.x = 600;
-						dashTime = 90;
-						FlxG.play(rocketSnd);
-						airjump = 1;
-						dashed = true;
-					}
-					else
-					{
-						timeToDoubleTap = 15;
-						doubleTapDir = RIGHT;
+						if(facing == LEFT) {
+							velocity.x = -600;
+						} else {
+							velocity.x = 600;
+						}
 					}
 				}
 				
