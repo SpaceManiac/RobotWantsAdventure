@@ -13,16 +13,28 @@
 		[Embed(source="../../data/powerup.mp3")] 
 		protected var hitSnd:Class;
 		
+		[Embed(source="../../data/highlight.png")] 
+		protected var HighlightImg:Class;
+		
+		private var highlight:FlxSprite;
+		
 		private var fading:Boolean = false;
 		private var finishedStage:Boolean = false;
 		
 		public static var Map:ByteArray = null;
 		public static var MapI:int = -1;
+		public static var FirstMap:int = 0;
 		private var timeout:uint = 0;
 		
+		private static const MT_NUM:int = 0;
+		private static const MT_NAME:int = 1;
+		private static const MT_AUTH:int = 2;
+		private var mapTexts:Array;
+		
 		private var maplist:Array;
-		private var mapT:FlxText;
-		private var maplT:FlxText;
+		
+		private var upbtn:ArrowButton;
+		private var dnbtn:ArrowButton;
 		
 		private function mapname():void {
 			//mapT.text = maplist[MapI]['name'] + "\n  by " + maplist[MapI]['author'];
@@ -31,7 +43,7 @@
 		
 		private function loadMaps():void {
 			FlxG.log("Downloading map list");
-			mapT.text = "Downloading list...";
+			mapTexts[0][MT_NAME].text = "Downloading list...";
 			var req:URLRequest = new URLRequest("http://wombat.platymuus.com/rwa/levellist.php?testing=" + ConfigState.testing.toString());
 			var loader:URLLoader = new URLLoader();
 			loader.addEventListener(Event.COMPLETE, loadMapsCallback);
@@ -46,7 +58,7 @@
 			clearTimeout(timeout);
 			timeout = 0;
 			FlxG.log("Processing map list");
-			mapT.text = "Processing list...";
+			mapTexts[0][MT_NAME].text = "Processing list...";
 			maplist = new Array();
 			var xml:XML = new XML(event.target.data);
 			for (var i:uint = 0; i < xml.level.length(); ++i) {
@@ -56,16 +68,17 @@
 				if (xml.level[i].@testing == 1) mapd['name'] += " *";
 				mapd['author'] = xml.level[i].author;
 				mapd['filename'] = xml.level[i].filename;
-				maplist[maplist.length] = mapd;
+				maplist.push(mapd);
 			}
 			MapI = 0;
 			mapname();
+			writeMapList();
 			FlxG.log("Done");
 		}
 		
 		private function loadMapsTimeout():void {
 			timeout = 0;
-			mapT.text = "Download timed out!\nOnly classic is available";
+			mapTexts[0][MT_NAME] = "Download timed out!";
 			MapI = -1;
 		}
 		
@@ -73,10 +86,52 @@
 		{
 			FlxG.log("AdvSelectState opened");
 			add(new Background());
+            add(new FlxText(0, 8, FlxG.width, "Select Adventure", 0xffffffff, null, 16, "center"));
+            add(new MenuButton(FlxG.width / 2, 210, finish, "Main Menu"));
 			
+			add(highlight = new FlxSprite(HighlightImg, 0, 43));
 			
-			//loadMaps();
+			add(new FlxText(20, 32, 30, "Num"));
+			add(new FlxText(50, 32, 140, "Adventure Name"));
+			add(new FlxText(200, 32, 200, "Author"));
+			
+			add(upbtn = new ArrowButton(300, 50, upbtnCallback, "up"));
+			add(dnbtn = new ArrowButton(300, 60, dnbtnCallback, "down"));
+			
+			mapTexts = new Array();
+			for (var i:int = 1; i <= 15; ++i) {
+				var txt_num:FlxText = new FlxText(20, 32 + 11 * i, 30, "-");
+				var txt_name:FlxText = new FlxText(50, 32 + 11 * i, 140, "");
+				var txt_author:FlxText = new FlxText(200, 32 + 11 * i, 200, "");
+				add(txt_num);
+				add(txt_name);
+				add(txt_author);
+				
+				var mapEl:Array = [txt_num, txt_name, txt_author];
+				mapTexts.push(mapEl);
+			}
+			
+			loadMaps();
 			add(new Cursor());
+		}
+		
+		private function writeMapList():void
+		{
+			var found:Boolean = false;
+			for (var i:int = 0; i < 15; ++i) {
+				var mapData:Array = maplist[FirstMap + i];
+				var mapText:Array = mapTexts[i];
+				mapText[MT_NUM].text = (FirstMap + i + 1).toString();
+				mapText[MT_NAME].text = mapData["name"];
+				mapText[MT_AUTH].text = mapData["author"];
+				if (FirstMap + i == MapI) {
+					highlight.y = 32 + 11 * (i + 1);
+					found = true;
+				}
+			}
+			if (!found) {
+				highlight.y = -40;
+			}
 		}
 		
 		override public function update():void
@@ -84,6 +139,15 @@
 			if (FlxG.keys.Z) {
 				finish();
 			}
+			
+			if (FlxG.mouse.justPressed()) {
+				var y:int = FlxG.mouse.y;
+				if (y >= 43 && y < 208 && FlxG.mouse.x < 299) {
+					MapI = FirstMap + int((y-43) / 11);
+					writeMapList();
+				}
+			}
+			
 			super.update();
 		}
 		
@@ -142,5 +206,15 @@
 				finishedStage = true;
 			}
         }
+		
+		private function upbtnCallback():void {
+			if (FirstMap > 0) FirstMap--;
+			writeMapList();
+		}
+		
+		private function dnbtnCallback():void {
+			if (FirstMap < maplist.length - 15) FirstMap++;
+			writeMapList();
+		}
 	}
 }

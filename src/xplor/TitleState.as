@@ -25,11 +25,11 @@
 			this.add(new Background());
             this.add(new FlxText(0, 20, FlxG.width, "Robot Wants Kitty:", 0xffffffff, null, 16, "center")) as FlxText;
             this.add(new FlxText(0, 36, FlxG.width, "Adventure Edition", 0xffffffff, null, 16, "center")) as FlxText;
-			this.add(new FlxText(0, 230, FlxG.width + 1, "Build " + s, 0xffffffff, null, 8, "center"));
+			this.add(new FlxText(0, 220, FlxG.width + 1, "Build " + s, 0xffffffff, null, 8, "center"));
 			//this.add(new FlxText(0, 110, FlxG.width, "Selected:", 0xffffffff, null, 8, "center")); 
 			//this.add(new FlxText(0, 120, FlxG.width, Adventure, 0xffffffff, null, 8, "center")); 
 			this.add(new MenuButton(FlxG.width / 2, 70, play, "Play!"));
-			this.add(new MenuButton(FlxG.width / 2, 110, adv, "Pick Adventure"));
+			this.add(new MenuButton(FlxG.width / 2, 110, adv, "Select Adventure"));
 			this.add(new FlxText(0, 134, FlxG.width, Adventure, 0xffffffff, null, 8, "center")); 
 			this.add(new MenuButton(FlxG.width / 2, 150, config, "Game Options"));
             //this.add(new FlxText(0, FlxG.height - 28, FlxG.width, "Press Z to start", 0xffffffff, null, 8, "center"));
@@ -47,9 +47,14 @@
 				config();
 			} else if (FlxG.keys.A) {
 				adv();
-			} else if (FlxG.keys.F12 && !ConfigState.testing) {
-				FlxG.log("Testing mode enabled");
-				ConfigState.testing = 1;
+			} else if (FlxG.keys.justPressed("F12")) {
+				if (ConfigState.testing) {
+					FlxG.log("Testing mode disabled");
+					ConfigState.testing = 0;
+				} else {
+					FlxG.log("Testing mode enabled");
+					ConfigState.testing = 1;
+				}
 			}
             super.update();
         }

@@ -59,8 +59,10 @@
 			FlxG.log("ConfigState opened");
 			this.add(new Background());
             add(new FlxText(0, 8, FlxG.width, "Game Options", 0xffffffff, null, 16, "center"));
-            add(new FlxText(0, FlxG.height  -20, FlxG.width, "Up/down to select, l/r to change", 0xffffffff, null, 8, "center"));
-            add(new FlxText(0, FlxG.height  -12, FlxG.width, "Press Z to return", 0xffffffff, null, 8, "center"));
+            add(new FlxText(0, 190, FlxG.width, "Up/down to select, l/r to change", 0xffffffff, null, 8, "center"));
+            //add(new FlxText(0, FlxG.height  -12, FlxG.width, "Press Z to return", 0xffffffff, null, 8, "center"));
+			
+            add(new MenuButton(FlxG.width / 2, 210, finish, "Main Menu"));
 			
 			// pointer
 			arrow = new FlxText(70, 32, 10, ">");
@@ -124,13 +126,27 @@
 			else return "off";
 		}
 		
-        override public function update():void {
-            if (FlxG.keys.Z && !fading) {
+		private function finish():void {
+			if(!fading) {
 				fading = true;
 				FlxG.flash(0xffffffff, 0.75);
 				FlxG.fade(0xff000000, 0.5, onFade);
 				FlxG.play(hitSnd);
 			}
+		}
+		
+        override public function update():void {
+            if (FlxG.keys.Z && !fading) {
+				finish();
+			}
+			
+			if (Cursor.moved()) {
+				var s:int = (FlxG.mouse.y - 32) / 11;
+				if (s >= 0 && s <= 13) {
+					selection = s;
+				}
+			}
+			var mouseInRect:Boolean = (FlxG.mouse.y >= 32 && FlxG.mouse.y <= (32 + 14 * 11));
 			
 			if (FlxG.keys.justPressed("UP")) {
 				if (selection > 0) selection--;
@@ -140,9 +156,15 @@
 			}
 			arrow.y = 32 + 11 * selection;
 			
+			if (FlxG.mouse.x < FlxG.width / 2) {
+				arrow.text = "<";
+			} else {
+				arrow.text = ">";
+			}
+			
 			var ctrlText:Array = ["C-based", "Double-tap-based"];
 			
-			if (FlxG.keys.justPressed("LEFT")) {
+			if (FlxG.keys.justPressed("LEFT") || (FlxG.mouse.justPressed() && FlxG.mouse.x < FlxG.width/2 && mouseInRect)) {
 				if (selection == 0) {
 					if (Controls == 0) {
 						Controls = 1;
@@ -192,7 +214,7 @@
 				}
 			}
 			
-			if (FlxG.keys.justPressed("RIGHT")) {
+			if (FlxG.keys.justPressed("RIGHT") || (FlxG.mouse.justPressed() && FlxG.mouse.x >= FlxG.width/2 && mouseInRect)) {
 				if (selection == 0) {
 					if (Controls == 0) {
 						Controls = 1;
