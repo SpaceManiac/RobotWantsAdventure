@@ -91,6 +91,18 @@
 					tileMap.setTileByIndex(i, 0);
 					enemies.push(this.add(new Boss(i % 256, i / 256, a,bombs,player)));
 				}
+				if (a[i] == 20)	// tall guy
+				{
+					a[i] = 0;
+					tileMap.setTileByIndex(i, 0);
+					enemies.push(this.add(new AlienTall(i % 256, i / 256, tileMap)));
+				}
+				if (a[i] == 21)	// ouchtopus
+				{
+					a[i] = 0;
+					tileMap.setTileByIndex(i, 0);
+					enemies.push(this.add(new Ouchtopus(i % 256, i / 256,bombs)));
+				}
 				if (a[i] == 50)	// check to see about making it a big one
 				{
 					if ((i%2)==0 && (i % 256) < 255 && a[i + 1] == 50 && (i / 256) < 255 && a[i + 256] == 50 && a[i + 256 + 1] == 50)	// this is the upper left of a square of these

@@ -103,7 +103,9 @@ Eyedropper and pencil tool away - it's level building time! Here's the expanded 
 <b>&nbsp;DRIP</b> - Drippazorg hanging alien thingy<br />
 <b>CHECK</b> - checkpoint! When you die, you go to the last activated one<br />
 <b>M-BLK</b> - missile-block (hit with mega missile to destroy)<br />
-<b>&nbsp;WOOD</b> - wooden block gets destroyed by falling rocket boost thingies
+<b>&nbsp;WOOD</b> - wooden block gets destroyed by falling rocket boost thingies<br />
+<b>&nbsp;TALL</b> - Elementall - taller version of red enemy (place 1 tile off the ground) <br />
+<b>&nbsp;OCTO</b> - Ouchtopus - sits in one spot and shoots goop bombs. Place directly above OUCH.
 </code>
 
 <h2><a name="submit">3. Submit your level</a></h2>
