@@ -4,7 +4,7 @@ package org.flixel.data
 	
 	public class FlxKeyboard
 	{
-		public var ESC:Boolean;
+		public var ESCAPE:Boolean;
 		public var F1:Boolean;
 		public var F2:Boolean;
 		public var F3:Boolean;
@@ -30,6 +30,7 @@ package org.flixel.data
 		public var MINUS:Boolean;
 		public var PLUS:Boolean;
 		public var DELETE:Boolean;
+		public var BACKSPACE:Boolean;
 		public var Q:Boolean;
 		public var W:Boolean;
 		public var E:Boolean;
@@ -75,10 +76,22 @@ package org.flixel.data
 		public var LEFT:Boolean;
 		public var RIGHT:Boolean;
 		
+		/**
+		 * @private
+		 */
 		protected var _lookup:Object;
+		/**
+		 * @private
+		 */
 		protected var _map:Array;
+		/**
+		 * @private
+		 */
 		protected const _t:uint = 256;
 		
+		/**
+		 * Constructor
+		 */
 		public function FlxKeyboard()
 		{
 			//BASIC STORAGE & TRACKING			
@@ -108,10 +121,11 @@ package org.flixel.data
 				addKey("F"+i,111+i);
 			
 			//SPECIAL KEYS + PUNCTUATION
-			addKey("ESC",27);
+			addKey("ESCAPE",27);
 			addKey("MINUS",189);
 			addKey("PLUS",187);
-			addKey("DELETE",8);
+			addKey("DELETE",46);
+			addKey("BACKSPACE",8);
 			addKey("LBRACKET",219);
 			addKey("RBRACKET",221);
 			addKey("BACKSLASH",220);
@@ -132,6 +146,9 @@ package org.flixel.data
 			addKey("RIGHT",39);
 		}
 		
+		/**
+		 * Updates the key states (for tracking just pressed, just released, etc).
+		 */
 		public function update():void
 		{
 			for(var i:uint = 0; i < _t; i++)
@@ -144,6 +161,9 @@ package org.flixel.data
 			}
 		}
 		
+		/**
+		 * Resets all the keys.
+		 */
 		public function reset():void
 		{
 			for(var i:uint = 0; i < _t; i++)
@@ -156,21 +176,38 @@ package org.flixel.data
 			}
 		}
 		
-		//@desc		Check to see if this key is pressed
-		//@param	Key		One of the key constants listed above (e.g. LEFT or A)
-		//@return	Whether the key is pressed
+		/**
+		 * Check to see if this key is pressed.
+		 * 
+		 * @param	Key		One of the key constants listed above (e.g. "LEFT" or "A").
+		 * 
+		 * @return	Whether the key is pressed
+		 */
 		public function pressed(Key:String):Boolean { return this[Key]; }
 		
-		//@desc		Check to see if this key was JUST pressed
-		//@param	Key		One of the key constants listed above (e.g. LEFT or A)
-		//@return	Whether the key was just pressed
+		/**
+		 * Check to see if this key was just pressed.
+		 * 
+		 * @param	Key		One of the key constants listed above (e.g. "LEFT" or "A").
+		 * 
+		 * @return	Whether the key was just pressed
+		 */
 		public function justPressed(Key:String):Boolean { return _map[_lookup[Key]].current == 2; }
 		
-		//@desc		Check to see if this key is NOT pressed
-		//@param	Key		One of the key constants listed above (e.g. LEFT or A)
-		//@return	Whether the key is not pressed
+		/**
+		 * Check to see if this key is just released.
+		 * 
+		 * @param	Key		One of the key constants listed above (e.g. "LEFT" or "A").
+		 * 
+		 * @return	Whether the key is just released.
+		 */
 		public function justReleased(Key:String):Boolean { return _map[_lookup[Key]].current == -1; }
 		
+		/**
+		 * Event handler so FlxGame can toggle keys.
+		 * 
+		 * @param	event	A <code>KeyboardEvent</code> object.
+		 */
 		public function handleKeyDown(event:KeyboardEvent):void
 		{
 			var o:Object = _map[event.keyCode];
@@ -180,6 +217,11 @@ package org.flixel.data
 			this[o.name] = true;
 		}
 		
+		/**
+		 * Event handler so FlxGame can toggle keys.
+		 * 
+		 * @param	event	A <code>KeyboardEvent</code> object.
+		 */
 		public function handleKeyUp(event:KeyboardEvent):void
 		{
 			var o:Object = _map[event.keyCode];
@@ -189,6 +231,12 @@ package org.flixel.data
 			this[o.name] = false;
 		}
 		
+		/**
+		 * An internal helper function used to build the key array.
+		 * 
+		 * @param	KeyName		String name of the key (e.g. "LEFT" or "A")
+		 * @param	KeyCode		The numeric Flash code for this key.
+		 */
 		protected function addKey(KeyName:String,KeyCode:uint):void
 		{
 			_lookup[KeyName] = KeyCode;

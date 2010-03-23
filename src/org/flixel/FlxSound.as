@@ -1,17 +1,32 @@
 package org.flixel
 {
 	import flash.events.Event;
-	import flash.geom.Point;
 	import flash.media.Sound;
 	import flash.media.SoundChannel;
 	import flash.media.SoundTransform;
 	import flash.net.URLRequest;
 	
-	//@desc		This is the universal flixel sound object, used for streaming, music, and sound effects
-	public class FlxSound extends FlxCore
+	/**
+	 * This is the universal flixel sound object, used for streaming, music, and sound effects.
+	 */
+	public class FlxSound extends FlxObject
 	{
-		//@desc		Whether or not this sound should be automatically destroyed when you switch states
+		/**
+		 * Whether or not this sound should be automatically destroyed when you switch states.
+		 */
 		public var survive:Boolean;
+		/**
+		 * Whether the sound is currently playing or not.
+		 */
+		public var playing:Boolean;
+		/**
+		 * The ID3 song name.  Defaults to null.  Currently only works for streamed sounds.
+		 */
+		public var name:String;
+		/**
+		 * The ID3 artist name.  Defaults to null.  Currently only works for streamed sounds.
+		 */
+		public var artist:String;
 		
 		protected var _init:Boolean;
 		protected var _sound:Sound;
@@ -21,25 +36,34 @@ package org.flixel
 		protected var _volume:Number;
 		protected var _volumeAdjust:Number;
 		protected var _looped:Boolean;
-		protected var _core:FlxCore;
+		protected var _core:FlxObject;
 		protected var _radius:Number;
+		protected var _pan:Boolean;
 		protected var _fadeOutTimer:Number;
 		protected var _fadeOutTotal:Number;
 		protected var _pauseOnFadeOut:Boolean;
 		protected var _fadeInTimer:Number;
 		protected var _fadeInTotal:Number;
+		protected var _point2:FlxPoint;
 		
-		//@desc		The FlxSound constructor gets all the variables initialized, but NOT ready to play a sound yet
+		/**
+		 * The FlxSound constructor gets all the variables initialized, but NOT ready to play a sound yet.
+		 */
 		public function FlxSound()
 		{
 			super();
+			_point2 = new FlxPoint();
 			_transform = new SoundTransform();
 			init();
+			fixed = true; //no movement usually
 		}
 		
-		//@desc		An internal function for clearing all the variables used by sounds
+		/**
+		 * An internal function for clearing all the variables used by sounds.
+		 */
 		protected function init():void
 		{
+			_transform.pan = 0;
 			_sound = null;
 			_position = 0;
 			_volume = 1.0;
@@ -47,6 +71,7 @@ package org.flixel
 			_looped = false;
 			_core = null;
 			_radius = 0;
+			_pan = false;
 			_fadeOutTimer = 0;
 			_fadeOutTotal = 0;
 			_pauseOnFadeOut = false;
@@ -54,49 +79,77 @@ package org.flixel
 			_fadeInTotal = 0;
 			active = false;
 			visible = false;
-			dead = true;
+			solid = false;
+			playing = false;
+			name = null;
+			artist = null;
 		}
 		
-		//@desc		One of two main setup functions for sounds, this function loads a sound from an embedded MP3
-		//@param	EmbeddedSound	An embedded Class object representing an MP3 file
-		//@param	Looped			Whether or not this sound should loop endlessly
-		public function loadEmbedded(EmbeddedSound:Class, Looped:Boolean=false):void
+		/**
+		 * One of two main setup functions for sounds, this function loads a sound from an embedded MP3.
+		 * 
+		 * @param	EmbeddedSound	An embedded Class object representing an MP3 file.
+		 * @param	Looped			Whether or not this sound should loop endlessly.
+		 * 
+		 * @return	This <code>FlxSound</code> instance (nice for chaining stuff together, if you're into that).
+		 */
+		public function loadEmbedded(EmbeddedSound:Class, Looped:Boolean=false):FlxSound
 		{
 			stop();
 			init();
 			_sound = new EmbeddedSound;
+			//NOTE: can't pull ID3 info from embedded sound currently
 			_looped = Looped;
 			updateTransform();
 			active = true;
+			return this;
 		}
 		
-		//@desc		One of two main setup functions for sounds, this function loads a sound from a URL
-		//@param	EmbeddedSound	A string representing the URL of the MP3 file you want to play
-		//@param	Looped			Whether or not this sound should loop endlessly
-		public function loadStream(SoundURL:String, Looped:Boolean=false):void
+		/**
+		 * One of two main setup functions for sounds, this function loads a sound from a URL.
+		 * 
+		 * @param	EmbeddedSound	A string representing the URL of the MP3 file you want to play.
+		 * @param	Looped			Whether or not this sound should loop endlessly.
+		 * 
+		 * @return	This <code>FlxSound</code> instance (nice for chaining stuff together, if you're into that).
+		 */
+		public function loadStream(SoundURL:String, Looped:Boolean=false):FlxSound
 		{
 			stop();
 			init();
-			_sound = new Sound(new URLRequest(SoundURL));
+			_sound = new Sound();
+			_sound.addEventListener(Event.ID3, gotID3);
+			_sound.load(new URLRequest(SoundURL));
 			_looped = Looped;
 			updateTransform();
 			active = true;
+			return this;
 		}
 		
-		//@desc		Call this function if you want this sound's volume to change based on distance from a particular FlxCore object
-		//@param	X		The X position of the sound
-		//@param	Y		The Y position of the sound
-		//@param	Core	The object you want to track
-		//@param	Radius	The maximum distance this sound can travel
-		public function proximity(X:Number,Y:Number,Core:FlxCore,Radius:Number):void
+		/**
+		 * Call this function if you want this sound's volume to change
+		 * based on distance from a particular FlxCore object.
+		 * 
+		 * @param	X		The X position of the sound.
+		 * @param	Y		The Y position of the sound.
+		 * @param	Core	The object you want to track.
+		 * @param	Radius	The maximum distance this sound can travel.
+		 * 
+		 * @return	This FlxSound instance (nice for chaining stuff together, if you're into that).
+		 */
+		public function proximity(X:Number,Y:Number,Core:FlxObject,Radius:Number,Pan:Boolean=true):FlxSound
 		{
 			x = X;
 			y = Y;
 			_core = Core;
 			_radius = Radius;
+			_pan = Pan;
+			return this;
 		}
 		
-		//@desc		Call this function to play the sound
+		/**
+		 * Call this function to play the sound.
+		 */
 		public function play():void
 		{
 			if(_position < 0)
@@ -107,11 +160,16 @@ package org.flixel
 				{
 					if(_channel == null)
 						_channel = _sound.play(0,9999,_transform);
+					if(_channel == null)
+						active = false;
 				}
 				else
 				{
 					_channel = _sound.play(_position,0,_transform);
-					_channel.addEventListener(Event.SOUND_COMPLETE, looped);
+					if(_channel == null)
+						active = false;
+					else
+						_channel.addEventListener(Event.SOUND_COMPLETE, looped);
 				}
 			}
 			else
@@ -121,16 +179,26 @@ package org.flixel
 					if(_channel == null)
 					{
 						_channel = _sound.play(0,0,_transform);
-						_channel.addEventListener(Event.SOUND_COMPLETE, stopped);
+						if(_channel == null)
+							active = false;
+						else
+							_channel.addEventListener(Event.SOUND_COMPLETE, stopped);
 					}
 				}
 				else
+				{
 					_channel = _sound.play(_position,0,_transform);
+					if(_channel == null)
+						active = false;
+				}
 			}
+			playing = (_channel != null);
 			_position = 0;
 		}
 		
-		//@desc		Call this function to pause this sound
+		/**
+		 * Call this function to pause this sound.
+		 */
 		public function pause():void
 		{
 			if(_channel == null)
@@ -140,12 +208,18 @@ package org.flixel
 			}
 			_position = _channel.position;
 			_channel.stop();
-			while(_position >= _sound.length)
-				_position -= _sound.length;
+			if(_looped)
+			{
+				while(_position >= _sound.length)
+					_position -= _sound.length;
+			}
 			_channel = null;
+			playing = false;
 		}
 		
-		//@desc		Call this function to stop this sound
+		/**
+		 * Call this function to stop this sound.
+		 */
 		public function stop():void
 		{
 			_position = 0;
@@ -156,8 +230,12 @@ package org.flixel
 			}
 		}
 		
-		//@desc		Call this function to make this sound fade out over a certain time interval
-		//@param	Seconds		The amount of time the fade out operation should take
+		/**
+		 * Call this function to make this sound fade out over a certain time interval.
+		 * 
+		 * @param	Seconds			The amount of time the fade out operation should take.
+		 * @param	PauseInstead	Tells the sound to pause on fadeout, instead of stopping.
+		 */
 		public function fadeOut(Seconds:Number,PauseInstead:Boolean=false):void
 		{
 			_pauseOnFadeOut = PauseInstead;
@@ -166,8 +244,12 @@ package org.flixel
 			_fadeOutTotal = _fadeOutTimer;
 		}
 		
-		//@desc		Call this function to make a sound fade in over a certain time interval (calls play() automatically)
-		//@param	Seconds		The amount of time the fade in operation should take
+		/**
+		 * Call this function to make a sound fade in over a certain
+		 * time interval (calls <code>play()</code> automatically).
+		 * 
+		 * @param	Seconds		The amount of time the fade-in operation should take.
+		 */
 		public function fadeIn(Seconds:Number):void
 		{
 			_fadeOutTimer = 0;
@@ -176,8 +258,17 @@ package org.flixel
 			play();
 		}
 		
-		//@desc		This is the setter for FlxSound.volume
-		//@param	Volume		The new volume for this sound (a number between 0 and 1.0)
+		/**
+		 * Set <code>volume</code> to a value between 0 and 1 to change how this sound is.
+		 */
+		public function get volume():Number
+		{
+			return _volume;
+		}
+		
+		/**
+		 * @private
+		 */
 		public function set volume(Volume:Number):void
 		{
 			_volume = Volume;
@@ -188,17 +279,14 @@ package org.flixel
 			updateTransform();
 		}
 		
-		//@desc		This is the getter for FlxSound.volume
-		//@return	The volume of this sound (a number between 0 and 1.0)
-		public function get volume():Number
+		/**
+		 * Internal function that performs the actual logical updates to the sound object.
+		 * Doesn't do much except optional proximity and fade calculations.
+		 */
+		protected function updateSound():void
 		{
-			return _volume;
-		}
-		
-		//@desc		The basic game loop update function - doesn't do much except optional proximity and fade calculations
-		override public function update():void
-		{
-			super.update();
+			if(_position != 0)
+				return;
 			
 			var radial:Number = 1.0;
 			var fade:Number = 1.0;
@@ -206,16 +294,23 @@ package org.flixel
 			//Distance-based volume control
 			if(_core != null)
 			{
-				var pc:Point = new Point();
-				var pt:Point = new Point();
-				_core.getScreenXY(pc);
-				getScreenXY(pt);
-				var dx:Number = pc.x - pt.x;
-				var dy:Number = pc.y - pt.y;
+				var _point:FlxPoint = new FlxPoint();
+				var _point2:FlxPoint = new FlxPoint();
+				_core.getScreenXY(_point);
+				getScreenXY(_point2);
+				var dx:Number = _point.x - _point2.x;
+				var dy:Number = _point.y - _point2.y;
 				radial = (_radius - Math.sqrt(dx*dx + dy*dy))/_radius;
-				FlxG.log(radial);
 				if(radial < 0) radial = 0;
 				if(radial > 1) radial = 1;
+				
+				if(_pan)
+				{
+					var d:Number = -dx/_radius;
+					if(d < -1) d = -1;
+					else if(d > 1) d = 1;
+					_transform.pan = d;
+				}
 			}
 			
 			//Cross-fading volume control
@@ -235,7 +330,7 @@ package org.flixel
 			else if(_fadeInTimer > 0)
 			{
 				_fadeInTimer -= FlxG.elapsed;
-				fade = _fadeInTimer/_fadeOutTotal;
+				fade = _fadeInTimer/_fadeInTotal;
 				if(fade < 0) fade = 0;
 				fade = 1 - fade;
 			}
@@ -243,15 +338,28 @@ package org.flixel
 			_volumeAdjust = radial*fade;
 			updateTransform();
 		}
+
+		/**
+		 * The basic game loop update function.  Just calls <code>updateSound()</code>.
+		 */
+		override public function update():void
+		{
+			super.update();
+			updateSound();			
+		}
 		
-		//@desc		The basic class destructor, stops the music and removes any leftover events
+		/**
+		 * The basic class destructor, stops the music and removes any leftover events.
+		 */
 		override public function destroy():void
 		{
 			if(active)
 				stop();
 		}
 		
-		//@desc		An internal function used to help organize and change the volume of the sound
+		/**
+		 * An internal function used to help organize and change the volume of the sound.
+		 */
 		internal function updateTransform():void
 		{
 			_transform.volume = FlxG.getMuteValue()*FlxG.volume*_volume*_volumeAdjust;
@@ -259,8 +367,11 @@ package org.flixel
 				_channel.soundTransform = _transform;
 		}
 		
-		//@desc		An internal helper function used to help Flash resume playing a looped sound
-		//@param	event		An Event object
+		/**
+		 * An internal helper function used to help Flash resume playing a looped sound.
+		 * 
+		 * @param	event		An <code>Event</code> object.
+		 */
 		protected function looped(event:Event=null):void
 		{
 		    if (_channel == null)
@@ -269,9 +380,12 @@ package org.flixel
 	        _channel = null;
 			play();
 		}
-		
-		//@desc		An internal helper function used to help clean up and re-use finished sounds
-		//@param	event		An Event object
+
+		/**
+		 * An internal helper function used to help Flash clean up and re-use finished sounds.
+		 * 
+		 * @param	event		An <code>Event</code> object.
+		 */
 		protected function stopped(event:Event=null):void
 		{
 			if(!_looped)
@@ -280,6 +394,22 @@ package org.flixel
 	        	_channel.removeEventListener(Event.SOUND_COMPLETE,looped);
 	        _channel = null;
 	        active = false;
+			playing = false;
+		}
+		
+		/**
+		 * Internal event handler for ID3 info (i.e. fetching the song name).
+		 * 
+		 * @param	event	An <code>Event</code> object.
+		 */
+		protected function gotID3(event:Event=null):void
+		{
+			FlxG.log("got ID3 info!");
+			if(_sound.id3.songName.length > 0)
+				name = _sound.id3.songName;
+			if(_sound.id3.artist.length > 0)
+				artist = _sound.id3.artist;
+			_sound.removeEventListener(Event.ID3, gotID3);
 		}
 	}
 }

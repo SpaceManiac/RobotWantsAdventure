@@ -8,40 +8,68 @@ package org.flixel
 	
 	import org.flixel.data.FlxAnim;
 	
-	//@desc		The main "game object" class, handles basic physics and animation
-	public class FlxSprite extends FlxCore
+	/**
+	* The main "game object" class, handles basic physics and animation.
+	*/
+	public class FlxSprite extends FlxObject
 	{
+		/**
+		 * Useful for controlling flipped animations and checking player orientation.
+		 */
 		static public const LEFT:uint = 0;
+		/**
+		 * Useful for controlling flipped animations and checking player orientation.
+		 */
 		static public const RIGHT:uint = 1;
+		/**
+		 * Useful for checking player orientation.
+		 */
 		static public const UP:uint = 2;
+		/**
+		 * Useful for checking player orientation.
+		 */
 		static public const DOWN:uint = 3;
-		static protected const _pZero:Point = new Point();
+		 
+		/**
+		* If you changed the size of your sprite object to shrink the bounding box,
+		* you might need to offset the new bounding box from the top-left corner of the sprite.
+		*/
+		public var offset:FlxPoint;
 		
-		//@desc If you changed the size of your sprite object to shrink the bounding box, you might need to offset the new bounding box from the top-left corner of the sprite
-		public var offset:Point;
-		public var velocity:Point;
-		public var acceleration:Point;
-		//@desc	This isn't drag exactly, more like deceleration that is only applied when acceleration is not affecting the sprite
-		public var drag:Point;
-		public var maxVelocity:Point;
-		//@desc WARNING: rotating sprites decreases rendering performance for this sprite by a factor of 10x!
-		public var angle:Number;
-		public var angularVelocity:Number;
-		public var angularAcceleration:Number;
-		public var angularDrag:Number;
-		public var maxAngular:Number;
-		//@desc	If you want to do Asteroids style stuff, check out thrust (instead of directly accessing the object's velocity or acceleration)
-		public var thrust:Number;
-		public var maxThrust:Number;
-		public var health:Number;
-		//@desc	Scale doesn't currently affect collisions automatically, you will need to adjust the width, height and offset manually.  WARNING: scaling sprites decreases rendering performance for this sprite by a factor of 10x!
-		public var scale:Point;
+		/**
+		 * Change the size of your sprite's graphic.
+		 * NOTE: Scale doesn't currently affect collisions automatically,
+		 * you will need to adjust the width, height and offset manually.
+		 * WARNING: scaling sprites decreases rendering performance for this sprite by a factor of 10x!
+		 */
+		public var scale:FlxPoint;
+		/**
+		 * Blending modes, just like Photoshop!
+		 * E.g. "multiply", "screen", etc.
+		 * @default null
+		 */
 		public var blend:String;
-		//@desc	Controls whether the object is smoothed when rotated, affects performance, off by default
+		/**
+		 * Controls whether the object is smoothed when rotated, affects performance.
+		 * @default false
+		 */
 		public var antialiasing:Boolean;
-		
-		//@desc	Whether the current animation has finished its first (or only) loop
+		/**
+		 * Whether the current animation has finished its first (or only) loop.
+		 */
 		public var finished:Boolean;
+		/**
+		 * The width of the actual graphic or image being displayed (not necessarily the game object/bounding box).
+		 * NOTE: Edit at your own risk!!  This is intended to be read-only.
+		 */
+		public var frameWidth:uint;
+		/**
+		 * The height of the actual graphic or image being displayed (not necessarily the game object/bounding box).
+		 * NOTE: Edit at your own risk!!  This is intended to be read-only.
+		 */
+		public var frameHeight:uint;
+		
+		//Animation helpers
 		protected var _animations:Array;
 		protected var _flipped:uint;
 		protected var _curAnim:FlxAnim;
@@ -50,107 +78,354 @@ package org.flixel
 		protected var _frameTimer:Number;
 		protected var _callback:Function;
 		protected var _facing:uint;
+		protected var _bakedRotation:Number;
 		
-		//helpers
-		protected var _bw:uint;
-		protected var _bh:uint;
-		protected var _r:Rectangle;
-		protected var _p:Point;
-		public var pixels:BitmapData;
+		//Various rendering helpers
+		protected var _flashRect:Rectangle;
+		protected var _flashRect2:Rectangle;
+		protected var _flashPointZero:Point;
 		protected var _pixels:BitmapData;
-		private var _alpha:Number;
-		private var _color:uint;
+		protected var _framePixels:BitmapData;
+		protected var _alpha:Number;
+		protected var _color:uint;
 		protected var _ct:ColorTransform;
 		protected var _mtx:Matrix;
 		
-		//@desc		Constructor
-		//@param	Graphic		The image you want to use
-		//@param	X			The initial X position of the sprite
-		//@param	Y			The initial Y position of the sprite
-		//@param	Animated	Whether the Graphic parameter is a single sprite or a row of sprites
-		//@param	Reverse		Whether you need this class to generate horizontally flipped versions of the animation frames
-		//@param	Width		If you opt to NOT use an image and want to generate a colored block, or your sprite's frames are not square, you can specify a width here 
-		//@param	Height		If you opt to NOT use an image you can specify the height of the colored block here (ignored if Graphic is not null)
-		//@param	Color		Specifies the color of the generated block (ignored if Graphic is not null)
-		//@param	Unique		Whether the graphic should be a unique instance in the graphics cache
-		public function FlxSprite(Graphic:Class=null,X:int=0,Y:int=0,Animated:Boolean=false,Reverse:Boolean=false,Width:uint=0,Height:uint=0,Color:uint=0xffffffff,Unique:Boolean=false)
+		/**
+		 * Creates a white 8x8 square <code>FlxSprite</code> at the specified position.
+		 * Optionally can load a simple, one-frame graphic instead.
+		 * 
+		 * @param	X				The initial X position of the sprite.
+		 * @param	Y				The initial Y position of the sprite.
+		 * @param	SimpleGraphic	The graphic you want to display (OPTIONAL - for simple stuff only, do NOT use for animated images!).
+		 */
+		public function FlxSprite(X:Number=0,Y:Number=0,SimpleGraphic:Class=null)
 		{
 			super();
+			x = X;
+			y = Y;
 
-			if(Graphic == null)
-				pixels = FlxG.createBitmap((Width<=0)?1:Width,(Height<=0)?1:Height,Color,Unique);
+			_flashRect = new Rectangle();
+			_flashRect2 = new Rectangle();
+			_flashPointZero = new Point();
+			if(SimpleGraphic == null)
+				createGraphic(8,8);
 			else
-				pixels = FlxG.addBitmap(Graphic,Reverse);
-				
-			last.x = x = X;
-			last.y = y = Y;
+				loadGraphic(SimpleGraphic);
+			offset = new FlxPoint();
+			
+			scale = new FlxPoint(1,1);
+			_alpha = 1;
+			_color = 0x00ffffff;
+			blend = null;
+			antialiasing = false;
+			
+			finished = false;
+			_facing = RIGHT;
+			_animations = new Array();
+			_flipped = 0;
+			_curAnim = null;
+			_curFrame = 0;
+			_caf = 0;
+			_frameTimer = 0;
+
+			_mtx = new Matrix();
+			_callback = null;
+		}
+		
+		/**
+		 * Load an image from an embedded graphic file.
+		 * 
+		 * @param	Graphic		The image you want to use.
+		 * @param	Animated	Whether the Graphic parameter is a single sprite or a row of sprites.
+		 * @param	Reverse		Whether you need this class to generate horizontally flipped versions of the animation frames.
+		 * @param	Width		OPTIONAL - Specify the width of your sprite (helps FlxSprite figure out what to do with non-square sprites or sprite sheets).
+		 * @param	Height		OPTIONAL - Specify the height of your sprite (helps FlxSprite figure out what to do with non-square sprites or sprite sheets).
+		 * @param	Unique		Whether the graphic should be a unique instance in the graphics cache.
+		 * 
+		 * @return	This FlxSprite instance (nice for chaining stuff together, if you're into that).
+		 */
+		public function loadGraphic(Graphic:Class,Animated:Boolean=false,Reverse:Boolean=false,Width:uint=0,Height:uint=0,Unique:Boolean=false):FlxSprite
+		{
+			_bakedRotation = 0;
+			_pixels = FlxG.addBitmap(Graphic,Reverse,Unique);
+			if(Reverse)
+				_flipped = _pixels.width>>1;
+			else
+				_flipped = 0;
 			if(Width == 0)
 			{
 				if(Animated)
-					Width = pixels.height;
+					Width = _pixels.height;
+				else if(_flipped > 0)
+					Width = _pixels.width/2;
 				else
-					Width = pixels.width;
+					Width = _pixels.width;
 			}
-			width = _bw = Width;
+			width = frameWidth = Width;
 			if(Height == 0)
 			{
 				if(Animated)
 					Height = width;
 				else
-					Height = pixels.height;
+					Height = _pixels.height;
 			}
-			height = _bh = Height;
-			offset = new Point();
-			
-			velocity = new Point();
-			acceleration = new Point();
-			drag = new Point();
-			maxVelocity = new Point(10000,10000);
-			
-			angle = 0;
-			angularVelocity = 0;
-			angularAcceleration = 0;
-			angularDrag = 0;
-			maxAngular = 10000;
-			
-			thrust = 0;
-			
-			scale = new Point(1,1);
-			
-			finished = false;
-			_facing = RIGHT;
-			_animations = new Array();
-			if(Reverse)
-				_flipped = pixels.width>>1;
-			else
-				_flipped = 0;
-			_curAnim = null;
-			_curFrame = 0;
-			_caf = 0;
-			_frameTimer = 0;
-			
-			_p = new Point(x,y);
-			_r = new Rectangle(0,0,_bw,_bh);
-			_pixels = new BitmapData(width,height);
-			_pixels.copyPixels(pixels,_r,_pZero);
-			_mtx = new Matrix();
-			
-			health = 1;
-			_alpha = 1;
-			_color = 0x00ffffff;
-			blend = null;
-			
-			_callback = null;
+			height = frameHeight = Height;
+			resetHelpers();
+			return this;
 		}
 		
-		//@desc		Called by game loop, handles animation and physics
-		override public function update():void
+		/**
+		 * Create a pre-rotated sprite sheet from a simple sprite.
+		 * This can make a huge difference in graphical performance!
+		 * 
+		 * @param	Graphic			The image you want to rotate & stamp.
+		 * @param	Frames			The number of frames you want to use (more == smoother rotations).
+		 * @param	Offset			Use this to select a specific frame to draw from the graphic.
+		 * @param	AntiAliasing	Whether to use high quality rotations when creating the graphic.
+		 * @param	AutoBuffer		Whether to automatically increase the image size to accomodate rotated corners.
+		 * 
+		 * @return	This FlxSprite instance (nice for chaining stuff together, if you're into that).
+		 */
+		public function loadRotatedGraphic(Graphic:Class, Rotations:uint=16, Frame:int=-1, AntiAliasing:Boolean=false, AutoBuffer:Boolean=false):FlxSprite
 		{
-			super.update();
+			//Create the brush and canvas
+			var rows:uint = 4;
+			var brush:FlxSprite = new FlxSprite().loadGraphic(Graphic,(Frame >= 0));
+			if(Frame >= 0)
+				brush.frame = Frame;
+			brush.antialiasing = AntiAliasing;
+			var max:uint = brush.width;
+			if(brush.height > max)
+				max = brush.height;
+			if(AutoBuffer)
+				max *= 1.5;
+			var cols:uint = Math.ceil(Rotations/rows);
+			width = max*cols;
+			height = max*rows;
+			var key:String = String(Graphic) + ":" + Frame + ":" + width + "x" + height;
+			var skipGen:Boolean = FlxG.checkBitmapCache(key);
+			createGraphic(width, height, 0, true, key);
+			_bakedRotation = 360/Rotations;
 			
-			if(!active) return;
+			//Generate a new sheet if necessary, then fix up the width & height
+			if(!skipGen)
+			{
+				var r:uint;
+				var c:uint;
+				var bw2:uint = brush.width/2;
+				var bh2:uint = brush.height/2;
+				var gxc:uint = max/2;
+				var gyc:uint = max/2;
+				for(r = 0; r < rows; r++)
+				{
+					for(c = 0; c < cols; c++)
+					{
+						draw(brush, gxc + max*c - bw2, gyc - bh2);
+						brush.angle += _bakedRotation;
+					}
+					gyc += max;
+				}
+			}
+			frameWidth = frameHeight = width = height = max;
+			resetHelpers();
+			return this;
+		}
+		
+		/**
+		 * This function creates a flat colored square image dynamically.
+		 * 
+		 * @param	Width		The width of the sprite you want to generate.
+		 * @param	Height		The height of the sprite you want to generate.
+		 * @param	Color		Specifies the color of the generated block.
+		 * @param	Unique		Whether the graphic should be a unique instance in the graphics cache.
+		 * @param	Key			Optional parameter - specify a string key to identify this graphic in the cache.  Trumps Unique flag.
+		 * 
+		 * @return	This FlxSprite instance (nice for chaining stuff together, if you're into that).
+		 */
+		public function createGraphic(Width:uint,Height:uint,Color:uint=0xffffffff,Unique:Boolean=false,Key:String=null):FlxSprite
+		{
+			_bakedRotation = 0;
+			_pixels = FlxG.createBitmap(Width,Height,Color,Unique,Key);
+			width = frameWidth = _pixels.width;
+			height = frameHeight = _pixels.height;
+			resetHelpers();
+			return this;
+		}
+		
+		/**
+		 * Set <code>pixels</code> to any <code>BitmapData</code> object.
+		 * Automatically adjust graphic size and render helpers.
+		 */
+		public function get pixels():BitmapData
+		{
+			return _pixels;
+		}
+		
+		/**
+		 * @private
+		 */
+		public function set pixels(Pixels:BitmapData):void
+		{
+			_pixels = Pixels;
+			width = frameWidth = _pixels.width;
+			height = frameHeight = _pixels.height;
+			resetHelpers();
+		}
+		
+		/**
+		 * Resets some important variables for sprite optimization and rendering.
+		 */
+		protected function resetHelpers():void
+		{
+			_flashRect.x = 0;
+			_flashRect.y = 0;
+			_flashRect.width = frameWidth;
+			_flashRect.height = frameHeight;
+			_flashRect2.x = 0;
+			_flashRect2.y = 0;
+			_flashRect2.width = _pixels.width;
+			_flashRect2.height = _pixels.height;
+			if((_framePixels == null) || (_framePixels.width != width) || (_framePixels.height != height))
+				_framePixels = new BitmapData(width,height);
+			origin.x = frameWidth/2;
+			origin.y = frameHeight/2;
+			_framePixels.copyPixels(_pixels,_flashRect,_flashPointZero);
+			_caf = 0;
+			refreshHulls();
+		}
+		
+		/**
+		 * Set <code>facing</code> using <code>FlxSprite.LEFT</code>,<code>RIGHT</code>,
+		 * <code>UP</code>, and <code>DOWN</code> to take advantage of
+		 * flipped sprites and/or just track player orientation more easily.
+		 */
+		public function get facing():uint
+		{
+			return _facing;
+		}
+		
+		/**
+		 * @private
+		 */
+		public function set facing(Direction:uint):void
+		{
+			var c:Boolean = _facing != Direction;
+			_facing = Direction;
+			if(c) calcFrame();
+		}
+		
+		/**
+		 * Set <code>alpha</code> to a number between 0 and 1 to change the opacity of the sprite.
+		 */
+		public function get alpha():Number
+		{
+			return _alpha;
+		}
+		
+		/**
+		 * @private
+		 */
+		public function set alpha(Alpha:Number):void
+		{
+			if(Alpha > 1) Alpha = 1;
+			if(Alpha < 0) Alpha = 0;
+			if(Alpha == _alpha) return;
+			_alpha = Alpha;
+			if((_alpha != 1) || (_color != 0x00ffffff)) _ct = new ColorTransform(Number(_color>>16)/255,Number(_color>>8&0xff)/255,Number(_color&0xff)/255,_alpha);
+			else _ct = null;
+			calcFrame();
+		}
+		
+		/**
+		 * Set <code>color</code> to a number in this format: 0xRRGGBB.
+		 * <code>color</code> IGNORES ALPHA.  To change the opacity use <code>alpha</code>.
+		 * Tints the whole sprite to be this color (similar to OpenGL vertex colors).
+		 */
+		public function get color():uint
+		{
+			return _color;
+		}
+		
+		/**
+		 * @private
+		 */
+		public function set color(Color:uint):void
+		{
+			Color &= 0x00ffffff;
+			if(_color == Color) return;
+			_color = Color;
+			if((_alpha != 1) || (_color != 0x00ffffff)) _ct = new ColorTransform(Number(_color>>16)/255,Number(_color>>8&0xff)/255,Number(_color&0xff)/255,_alpha);
+			else _ct = null;
+			calcFrame();
+		}
+		
+
+		/**
+		 * This function draws or stamps one <code>FlxSprite</code> onto another.
+		 * This function is NOT intended to replace <code>render()</code>!
+		 * 
+		 * @param	Brush		The image you want to use as a brush or stamp or pen or whatever.
+		 * @param	X			The X coordinate of the brush's top left corner on this sprite.
+		 * @param	Y			They Y coordinate of the brush's top left corner on this sprite.
+		 */
+		public function draw(Brush:FlxSprite,X:int=0,Y:int=0):void
+		{
+			var b:BitmapData = Brush._framePixels;
 			
-			//animation
+			//Simple draw
+			if(((Brush.angle == 0) || (Brush._bakedRotation > 0)) && (Brush.scale.x == 1) && (Brush.scale.y == 1) && (Brush.blend == null))
+			{
+				_flashPoint.x = X;
+				_flashPoint.y = Y;
+				_flashRect2.width = b.width;
+				_flashRect2.height = b.height;
+				_pixels.copyPixels(b,_flashRect2,_flashPoint,null,null,true);
+				_flashRect2.width = _pixels.width;
+				_flashRect2.height = _pixels.height;
+				calcFrame();
+				return;
+			}
+
+			//Advanced draw
+			_mtx.identity();
+			_mtx.translate(-Brush.origin.x,-Brush.origin.y);
+			_mtx.scale(Brush.scale.x,Brush.scale.y);
+			if(Brush.angle != 0) _mtx.rotate(Math.PI * 2 * (Brush.angle / 360));
+			_mtx.translate(X+Brush.origin.x,Y+Brush.origin.y);
+			_pixels.draw(b,_mtx,null,Brush.blend,null,Brush.antialiasing);
+			calcFrame();
+		}
+		
+		/**
+		 * Fills this sprite's graphic with a specific color.
+		 * 
+		 * @param	Color		The color with which to fill the graphic, format 0xAARRGGBB.
+		 */
+		public function fill(Color:uint):void
+		{
+			_pixels.fillRect(_flashRect2,Color);
+			calcFrame();
+		}
+		
+		/**
+		 * Internal function for updating the sprite's animation.
+		 * Useful for cases when you need to update this but are buried down in too many supers.
+		 * This function is called automatically by <code>FlxSprite.update()</code>.
+		 */
+		protected function updateAnimation():void
+		{
+			if(_bakedRotation)
+			{
+				var oc:uint = _caf;
+				var ta:int = angle%360;
+				if(ta < 0)
+					ta += 360;
+				_caf = ta/_bakedRotation;
+				if(oc != _caf)
+					calcFrame();
+				return;
+			}
 			if((_curAnim != null) && (_curAnim.delay > 0) && (_curAnim.looped || !finished))
 			{
 				_frameTimer += FlxG.elapsed;
@@ -168,115 +443,108 @@ package org.flixel
 					calcFrame();
 				}
 			}
-			
-			//motion + physics
-			angle += (angularVelocity = FlxG.computeVelocity(angularVelocity,angularAcceleration,angularDrag,maxAngular))*FlxG.elapsed;
-			var thrustComponents:Point;
-			if(thrust != 0)
-			{
-				thrustComponents = FlxG.rotatePoint(-thrust,0,0,0,angle);
-				var maxComponents:Point = FlxG.rotatePoint(-maxThrust,0,0,0,angle);
-				var max:Number = Math.abs(maxComponents.x);
-				if(max > Math.abs(maxComponents.y))
-					maxComponents.y = max;
-				else
-					max = Math.abs(maxComponents.y);
-				maxVelocity.x = Math.abs(max);
-				maxVelocity.y = Math.abs(max);
-			}
-			else
-				thrustComponents = _pZero;
-			x += (velocity.x = FlxG.computeVelocity(velocity.x,acceleration.x+thrustComponents.x,drag.x,maxVelocity.x))*FlxG.elapsed;
-			y += (velocity.y = FlxG.computeVelocity(velocity.y,acceleration.y+thrustComponents.y,drag.y,maxVelocity.y))*FlxG.elapsed;
 		}
 		
-		//@desc		Called by game loop, blits current frame of animation to the screen (and handles rotation)
-		override public function render():void
+		/**
+		 * Main game loop update function.  Override this to create your own sprite logic!
+		 * Just don't forget to call super.update() or any of the helper functions.
+		 */
+		override public function update():void
 		{
-			if(!visible)
-				return;
-			getScreenXY(_p);
+			updateMotion();
+			updateAnimation();
+			updateFlickering();
+		}
+		
+		/**
+		 * Internal function that performs the actual sprite rendering, called by render().
+		 */
+		protected function renderSprite():void
+		{
+			getScreenXY(_point);
+			_flashPoint.x = _point.x;
+			_flashPoint.y = _point.y;
 			
 			//Simple render
-			if((angle == 0) && (scale.x == 1) && (scale.y == 1) && (blend == null))
+			if(((angle == 0) || (_bakedRotation > 0)) && (scale.x == 1) && (scale.y == 1) && (blend == null))
 			{
-				FlxG.buffer.copyPixels(_pixels,_r,_p,null,null,true);
+				FlxG.buffer.copyPixels(_framePixels,_flashRect,_flashPoint,null,null,true);
 				return;
 			}
 			
 			//Advanced render
 			_mtx.identity();
-			_mtx.translate(-(_bw>>1),-(_bh>>1));
+			_mtx.translate(-origin.x,-origin.y);
 			_mtx.scale(scale.x,scale.y);
 			if(angle != 0) _mtx.rotate(Math.PI * 2 * (angle / 360));
-			_mtx.translate(_p.x+(_bw>>1),_p.y+(_bh>>1));
-			FlxG.buffer.draw(_pixels,_mtx,null,blend,null,antialiasing);
+			_mtx.translate(_point.x+origin.x,_point.y+origin.y);
+			FlxG.buffer.draw(_framePixels,_mtx,null,blend,null,antialiasing);
 		}
 		
-		//@desc		Checks to see if a point in 2D space overlaps this FlxCore object
-		//@param	X			The X coordinate of the point
-		//@param	Y			The Y coordinate of the point
-		//@param	PerPixel	Whether or not to use per pixel collision checking
-		//@return	Whether or not the point overlaps this object
+		/**
+		 * Called by game loop, updates then blits or renders current frame of animation to the screen
+		 */
+		override public function render():void
+		{
+			renderSprite();
+		}
+		
+		/**
+		 * Checks to see if a point in 2D space overlaps this FlxCore object.
+		 * 
+		 * @param	X			The X coordinate of the point.
+		 * @param	Y			The Y coordinate of the point.
+		 * @param	PerPixel	Whether or not to use per pixel collision checking.
+		 * 
+		 * @return	Whether or not the point overlaps this object.
+		 */
 		override public function overlapsPoint(X:Number,Y:Number,PerPixel:Boolean = false):Boolean
 		{
-			var tx:Number = x;
-			var ty:Number = y;
-			if((scrollFactor.x != 1) || (scrollFactor.y != 1))
-			{
-				tx -= Math.floor(FlxG.scroll.x*scrollFactor.x);
-				ty -= Math.floor(FlxG.scroll.y*scrollFactor.y);
-			}
+			X -= FlxU.floor(FlxG.scroll.x);
+			Y -= FlxU.floor(FlxG.scroll.y);
+			getScreenXY(_point);
 			if(PerPixel)
-				return _pixels.hitTest(new Point(0,0),0xFF,new Point(X-tx,Y-ty));
-			else if((X <= tx) || (X >= tx+width) || (Y <= ty) || (Y >= ty+height))
+				return _framePixels.hitTest(new Point(0,0),0xFF,new Point(X-_point.x,Y-_point.y));
+			else if((X <= _point.x) || (X >= _point.x+frameWidth) || (Y <= _point.y) || (Y >= _point.y+frameHeight))
 				return false;
 			return true;
 		}
 		
-		//@desc		Called when this object collides with a FlxBlock on one of its sides
-		//@return	Whether you wish the FlxBlock to collide with it or not
-		override public function hitWall(Contact:FlxCore=null):Boolean { velocity.x = 0; return true; }
-		
-		//@desc		Called when this object collides with the top of a FlxBlock
-		//@return	Whether you wish the FlxBlock to collide with it or not
-		override public function hitFloor(Contact:FlxCore=null):Boolean { velocity.y = 0; return true; }
-		
-		//@desc		Called when this object collides with the bottom of a FlxBlock
-		//@return	Whether you wish the FlxBlock to collide with it or not
-		override public function hitCeiling(Contact:FlxCore=null):Boolean { velocity.y = 0; return true; }
-		
-		//@desc		Call this function to "damage" (or give health bonus) to this sprite
-		//@param	Damage		How much health to take away (use a negative number to give a health bonus)
-		virtual public function hurt(Damage:Number):void
-		{
-			if((health -= Damage) <= 0)
-				kill();
-		}
-		
-		//@desc		Called if/when this sprite is launched by a FlxEmitter
+		/**
+		 * Triggered whenever this sprite is launched by a <code>FlxEmitter</code>.
+		 */
 		virtual public function onEmit():void { }
 		
-		//@desc		Adds a new animation to the sprite
-		//@param	Name		What this animation should be called (e.g. "run")
-		//@param	Frames		An array of numbers indicating what frames to play in what order (e.g. 1, 2, 3)
-		//@param	FrameRate	The speed in frames per second that the animation should play at (e.g. 40 fps)
-		//@param	Looped		Whether or not the animation is looped or just plays once
+		/**
+		 * Adds a new animation to the sprite.
+		 * 
+		 * @param	Name		What this animation should be called (e.g. "run").
+		 * @param	Frames		An array of numbers indicating what frames to play in what order (e.g. 1, 2, 3).
+		 * @param	FrameRate	The speed in frames per second that the animation should play at (e.g. 40 fps).
+		 * @param	Looped		Whether or not the animation is looped or just plays once.
+		 */
 		public function addAnimation(Name:String, Frames:Array, FrameRate:Number=0, Looped:Boolean=true):void
 		{
 			_animations.push(new FlxAnim(Name,Frames,FrameRate,Looped));
 		}
 		
-		//@desc		Pass in a function to be called whenever this sprite's animation changes
-		//@param	AnimationCallback		A function that has 3 parameters: a string name, a uint frame number, and a uint frame index
+		/**
+		 * Pass in a function to be called whenever this sprite's animation changes.
+		 * 
+		 * @param	AnimationCallback		A function that has 3 parameters: a string name, a uint frame number, and a uint frame index.
+		 */
 		public function addAnimationCallback(AnimationCallback:Function):void
 		{
 			_callback = AnimationCallback;
 		}
 		
-		//@desc		Plays an existing animation (e.g. "run") - if you call an animation that is already playing it will be ignored
-		//@param	AnimName	The string name of the animation you want to play
-		//@param	Force		Whether to force the animation to restart
+		/**
+		 * Plays an existing animation (e.g. "run").
+		 * If you call an animation that is already playing it will be ignored.
+		 * 
+		 * @param	AnimName	The string name of the animation you want to play.
+		 * @param	Force		Whether to force the animation to restart.
+		 */
 		public function play(AnimName:String,Force:Boolean=false):void
 		{
 			if(!Force && (_curAnim != null) && (AnimName == _curAnim.name)) return;
@@ -288,140 +556,102 @@ package org.flixel
 			{
 				if(_animations[i].name == AnimName)
 				{
-					finished = false;
 					_curAnim = _animations[i];
+					if(_curAnim.delay <= 0)
+						finished = true;
+					else
+						finished = false;
 					_caf = _curAnim.frames[_curFrame];
 					calcFrame();
 					return;
 				}
 			}
 		}
-		
-		//@desc		Tell the sprite which way to face (you can just set 'facing' but this function also updates the animation instantly)
-		//@param	Direction		See static const members RIGHT, LEFT, UP, and DOWN	
-		public function set facing(Direction:uint):void
-		{
-			var c:Boolean = _facing != Direction;
-			_facing = Direction;
-			if(c) calcFrame();
-		}
-		
-		//@desc		Get the direction the sprite is facing
-		//@return	True means facing right, False means facing left (see static const members RIGHT and LEFT)
-		public function get facing():uint
-		{
-			return _facing;
-		}
-		
-		//@desc		Tell the sprite to change to a random frame of animation (useful for instantiating particles or other weird things)
+
+		/**
+		 * Tell the sprite to change to a random frame of animation
+		 * Useful for instantiating particles or other weird things.
+		 */
 		public function randomFrame():void
 		{
 			_curAnim = null;
-			_caf = int(FlxG.random()*(pixels.width/_bw));
+			_caf = int(FlxU.random()*(_pixels.width/frameWidth));
 			calcFrame();
 		}
 		
-		//@desc		Tell the sprite to change to a specific frame of animation (useful for instantiating particles)
-		//@param	Frame	The frame you want to display
-		public function specificFrame(Frame:uint):void
+		/**
+		 * Tell the sprite to change to a specific frame of animation.
+		 * 
+		 * @param	Frame	The frame you want to display.
+		 */
+		public function get frame():uint
+		{
+			return _caf;
+		}
+		
+		/**
+		 * @private
+		 */
+		public function set frame(Frame:uint):void
 		{
 			_curAnim = null;
 			_caf = Frame;
 			calcFrame();
 		}
 		
-		//@desc		Call this function to figure out the post-scrolling "screen" position of the object
-		//@param	P	Takes a Flash Point object and assigns the post-scrolled X and Y values of this object to it
-		override public function getScreenXY(P:Point):void
+		/**
+		 * Call this function to figure out the on-screen position of the object.
+		 * 
+		 * @param	P	Takes a <code>Point</code> object and assigns the post-scrolled X and Y values of this object to it.
+		 * 
+		 * @return	The <code>Point</code> you passed in, or a new <code>Point</code> if you didn't pass one, containing the screen X and Y position of this object.
+		 */
+		override public function getScreenXY(Point:FlxPoint=null):FlxPoint
 		{
-			P.x = Math.floor(x-offset.x)+Math.floor(FlxG.scroll.x*scrollFactor.x);
-			P.y = Math.floor(y-offset.y)+Math.floor(FlxG.scroll.y*scrollFactor.y);
+			if(Point == null) Point = new FlxPoint();
+			Point.x = FlxU.floor(x + FlxU.roundingError)+FlxU.floor(FlxG.scroll.x*scrollFactor.x) - offset.x;
+			Point.y = FlxU.floor(y + FlxU.roundingError)+FlxU.floor(FlxG.scroll.y*scrollFactor.y) - offset.y;
+			return Point;
 		}
 		
-		//@desc		Internal function to update the current animation frame
+		/**
+		 * Internal function to update the current animation frame.
+		 */
 		protected function calcFrame():void
 		{
-			var rx:uint = _caf*_bw;
+			var rx:uint = _caf*frameWidth;
 			var ry:uint = 0;
 
 			//Handle sprite sheets
-			var w:uint = _flipped?_flipped:pixels.width;
+			var w:uint = _flipped?_flipped:_pixels.width;
 			if(rx >= w)
 			{
-				ry = uint(rx/w)*_bh;
+				ry = uint(rx/w)*frameHeight;
 				rx %= w;
 			}
 			
 			//handle reversed sprites
 			if(_flipped && (_facing == LEFT))
-				rx = (_flipped<<1)-rx-_bw;
+				rx = (_flipped<<1)-rx-frameWidth;
 			
 			//Update display bitmap
-			_pixels.copyPixels(pixels,new Rectangle(rx,ry,_bw,_bh),_pZero);
-			if(_ct != null) _pixels.colorTransform(_r,_ct);
+			_flashRect.x = rx;
+			_flashRect.y = ry;
+			_framePixels.copyPixels(_pixels,_flashRect,_flashPointZero);
+			_flashRect.x = _flashRect.y = 0;
+			if(_ct != null) _framePixels.colorTransform(_flashRect,_ct);
 			if(_callback != null) _callback(_curAnim.name,_curFrame,_caf);
 		}
 		
-		//@desc		The setter for alpha
-		//@param	Alpha	The new opacity value of the sprite (between 0 and 1)
-		public function set alpha(Alpha:Number):void
+		/**
+		 * Internal function, currently only used to quickly update FlxState.screen for post-processing.
+		 * Potentially super-unsafe, since it doesn't call <code>resetHelpers()</code>!
+		 * 
+		 * @param	Pixels		The <code>BitmapData</code> object you want to point at.
+		 */
+		internal function unsafeBind(Pixels:BitmapData):void
 		{
-			if(Alpha > 1) Alpha = 1;
-			if(Alpha < 0) Alpha = 0;
-			_alpha = Alpha;
-			if((_alpha != 1) || (_color != 0x00ffffff)) _ct = new ColorTransform(Number(_color>>16)/255,Number(_color>>8&0xff)/255,Number(_color&0xff)/255,_alpha);
-			else _ct = null;
-			calcFrame();
-		}
-		
-		//@desc		The getter for alpha
-		//@return	The value of this sprite's opacity
-		public function get alpha():Number
-		{
-			return _alpha;
-		}
-		
-		//@desc		The setter for color - tints the whole sprite this color (similar to Photoshop multiply)
-		//@param	Color	The new color value of the sprite (0xRRGGBB) - ignores alpha
-		public function set color(Color:uint):void
-		{
-			_color = Color & 0x00ffffff;
-			if((_alpha != 1) || (_color != 0x00ffffff)) _ct = new ColorTransform(Number(_color>>16)/255,Number(_color>>8&0xff)/255,Number(_color&0xff)/255,_alpha);
-			else _ct = null;
-			calcFrame();
-		}
-		
-		//@desc		The getter for color - tints the whole sprite this color (similar to Photoshop multiply)
-		//@return	The color value of the sprite (0xRRGGBB) - ignores alpha
-		public function get color():uint
-		{
-			return _color;
-		}
-		
-		//@desc		This function draws or stamps one FlxSprite onto another (not intended to replace render()!)
-		//@param	Brush		The image you want to use as a brush or stamp or pen or whatever
-		//@param	X			The X coordinate of the brush's top left corner on this sprite
-		//@param	Y			They Y coordinate of the brush's top left corner on this sprite
-		public function draw(Brush:FlxSprite,X:int=0,Y:int=0):void
-		{
-			var b:BitmapData = Brush._pixels;
-			
-			//Simple draw
-			if((Brush.angle == 0) && (Brush.scale.x == 1) && (Brush.scale.y == 1) && (Brush.blend == null))
-			{
-				pixels.copyPixels(b,new Rectangle(0,0,b.width,b.height),new Point(X,Y),null,null,true);
-				calcFrame();
-				return;
-			}
-
-			//Advanced draw
-			var _mtx:Matrix = new Matrix();
-			_mtx.translate(-(Brush._bw>>1),-(Brush._bh>>1));
-			_mtx.scale(Brush.scale.x,Brush.scale.y);
-			if(Brush.angle != 0) _mtx.rotate(Math.PI * 2 * (Brush.angle / 360));
-			_mtx.translate(X+(Brush._bw>>1),Y+(Brush._bh>>1));
-			pixels.draw(b,_mtx,null,Brush.blend,null,Brush.antialiasing);
-			calcFrame();
+			_pixels = _framePixels = Pixels;
 		}
 	}
 }

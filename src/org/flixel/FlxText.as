@@ -1,47 +1,99 @@
 package org.flixel
 {
 	import flash.display.BitmapData;
-	import flash.geom.Rectangle;
 	import flash.text.TextField;
 	import flash.text.TextFormat;
 	
-	//@desc		A basic text display class, can do some fun stuff though like flicker and rotate
+	/**
+	 * Extends <code>FlxSprite</code> to support rendering text.
+	 * Can tint, fade, rotate and scale just like a sprite.
+	 * Doesn't really animate though, as far as I know.
+	 * Also does nice pixel-perfect centering on pixel fonts
+	 * as long as they are only one liners.
+	 */
 	public class FlxText extends FlxSprite
 	{
 		protected var _tf:TextField;
 		protected var _regen:Boolean;
+		protected var _shadow:uint;
 		
-		//@desc		Constructor
-		//@param	X		The X position of the text
-		//@param	Y		The Y position of the text
-		//@param	Width	The width of the text object
-		//@param	Height	The height of the text object (eventually these may be unnecessary by leveraging text metrics, but I couldn't get it together for this release)
-		//@param	Text	The actual text you would like to display initially
-		//@param	Color	The color of the text object
-		//@param	Font	The name of the font you'd like to use (pass null to use the built-in pixel font)
-		//@param	Size	The size of the font (recommend using multiples of 8 for cleanest rendering)
-		//@param	Align	Valid strings include "left", "center", and "right"
-		public function FlxText(X:Number, Y:Number, Width:uint, Text:String="", Color:uint=0xffffff, Font:String=null, Size:Number=8, Align:String=null)
+		/**
+		 * Creates a new <code>FlxText</code> object at the specified position.
+		 * 
+		 * @param	X		The X position of the text.
+		 * @param	Y		The Y position of the text.
+		 * @param	Width	The width of the text object (height is determined automatically).
+		 * @param	Text	The actual text you would like to display initially.
+		 */
+		public function FlxText(X:Number, Y:Number, Width:uint, Text:String=null)
 		{
-			if(Font == null)
-				Font = "system";
+			super(X,Y);
+			createGraphic(Width,1);
+			
 			if(Text == null)
 				Text = "";
 			_tf = new TextField();
 			_tf.width = Width;
-			_tf.height = 1;
 			_tf.embedFonts = true;
 			_tf.selectable = false;
 			_tf.sharpness = 100;
-			_tf.defaultTextFormat = new TextFormat(Font,Size,0xffffff,null,null,null,null,null,Align);
+			_tf.multiline = true;
+			_tf.wordWrap = true;
 			_tf.text = Text;
-			super(null,X,Y,false,false,Width,1);
+			var tf:TextFormat = new TextFormat("system",8,0xffffff);
+			_tf.defaultTextFormat = tf;
+			_tf.setTextFormat(tf);
+			if(Text.length <= 0)
+				_tf.height = 1;
+			else
+				_tf.height = 10;
+			
 			_regen = true;
-			color = Color; //calls calcFrame() implicitly
-		} 
+			_shadow = 0;
+			solid = false;
+			calcFrame();
+		}
 		
-		//@desc		Changes the text being displayed
-		//@param	Text	The new string you want to display
+		/**
+		 * You can use this if you have a lot of text parameters
+		 * to set instead of the individual properties.
+		 * 
+		 * @param	Font		The name of the font face for the text display.
+		 * @param	Size		The size of the font (in pixels essentially).
+		 * @param	Color		The color of the text in traditional flash 0xRRGGBB format.
+		 * @param	Alignment	A string representing the desired alignment ("left,"right" or "center").
+		 * @param	ShadowColow	A uint representing the desired text shadow color in flash 0xRRGGBB format.
+		 * 
+		 * @return	This FlxText instance (nice for chaining stuff together, if you're into that).
+		 */
+		public function setFormat(Font:String=null,Size:Number=8,Color:uint=0xffffff,Alignment:String=null,ShadowColor:uint=0):FlxText
+		{
+			if(Font == null)
+				Font = "";
+			var tf:TextFormat = dtfCopy();
+			tf.font = Font;
+			tf.size = Size;
+			tf.color = Color;
+			tf.align = Alignment;
+			_tf.defaultTextFormat = tf;
+			_tf.setTextFormat(tf);
+			_shadow = ShadowColor;
+			_regen = true;
+			calcFrame();
+			return this;
+		}
+		
+		/**
+		 * The text being displayed.
+		 */
+		public function get text():String
+		{
+			return _tf.text;
+		}
+		
+		/**
+		 * @private
+		 */
 		public function set text(Text:String):void
 		{
 			_tf.text = Text;
@@ -49,36 +101,115 @@ package org.flixel
 			calcFrame();
 		}
 		
-		//@desc		Getter to retrieve the text being displayed
-		//@param	Text	The text string being displayed
-		public function get text():String
-		{
-			return _tf.text;
-		}
-		
-		//@desc		Changes the text being displayed
-		//@param	Text	The new string you want to display
-		public function set size(Size:Number):void
-		{
-			_tf.defaultTextFormat.size = Size;
-			_regen = true;
-			calcFrame();
-		}
-		
-		//@desc		Getter to retrieve the text being displayed
-		//@param	Text	The text string being displayed
-		public function get size():Number
+		/**
+		 * The size of the text being displayed.
+		 */
+		 public function get size():Number
 		{
 			return _tf.defaultTextFormat.size as Number;
 		}
 		
-		//@desc		Internal function to update the current animation frame
+		/**
+		 * @private
+		 */
+		public function set size(Size:Number):void
+		{
+			var tf:TextFormat = dtfCopy();
+			tf.size = Size;
+			_tf.defaultTextFormat = tf;
+			_tf.setTextFormat(tf);
+			_regen = true;
+			calcFrame();
+		}
+		
+		/**
+		 * The color of the text being displayed.
+		 */
+		override public function get color():uint
+		{
+			return _tf.defaultTextFormat.color as uint;
+		}
+		
+		/**
+		 * @private
+		 */
+		override public function set color(Color:uint):void
+		{
+			var tf:TextFormat = dtfCopy();
+			tf.color = Color;
+			_tf.defaultTextFormat = tf;
+			_tf.setTextFormat(tf);
+			_regen = true;
+			calcFrame();
+		}
+		
+		/**
+		 * The font used for this text.
+		 */
+		public function get font():String
+		{
+			return _tf.defaultTextFormat.font;
+		}
+		
+		/**
+		 * @private
+		 */
+		public function set font(Font:String):void
+		{
+			var tf:TextFormat = dtfCopy();
+			tf.font = Font;
+			_tf.defaultTextFormat = tf;
+			_tf.setTextFormat(tf);
+			_regen = true;
+			calcFrame();
+		}
+		
+		/**
+		 * The alignment of the font ("left", "right", or "center").
+		 */
+		public function get alignment():String
+		{
+			return _tf.defaultTextFormat.align;
+		}
+		
+		/**
+		 * @private
+		 */
+		public function set alignment(Alignment:String):void
+		{
+			var tf:TextFormat = dtfCopy();
+			tf.align = Alignment;
+			_tf.defaultTextFormat = tf;
+			_tf.setTextFormat(tf);
+			calcFrame();
+		}
+		
+		/**
+		 * The alignment of the font ("left", "right", or "center").
+		 */
+		public function get shadow():uint
+		{
+			return _shadow;
+		}
+		
+		/**
+		 * @private
+		 */
+		public function set shadow(Color:uint):void
+		{
+			_shadow = Color;
+			calcFrame();
+		}
+		
+		/**
+		 * Internal function to update the current animation frame.
+		 */
 		override protected function calcFrame():void
 		{
 			//Just leave if there's no text to render
 			if((_tf == null) || (_tf.text == null) || (_tf.text.length <= 0))
 			{
-				_pixels.fillRect(_r,0);
+				_pixels.fillRect(_flashRect,0);
 				return;
 			}
 			if(_regen)
@@ -90,25 +221,55 @@ package org.flixel
 					height += _tf.getLineMetrics(i).height;
 				height += 4; //account for 2px gutter on top and bottom
 				_pixels = new BitmapData(width,height,true,0);
-				_bh = height;
-				_tf.height = height;
-				_r = new Rectangle(0,0,width,height);
+				frameHeight = height;
+				_tf.height = height*1.2;				
+				_flashRect.x = 0;
+				_flashRect.y = 0;
+				_flashRect.width = width;
+				_flashRect.height = height;
 				_regen = false;
 			}
 			else	//Else just clear the old buffer before redrawing the text
-				_pixels.fillRect(_r,0);
+				_pixels.fillRect(_flashRect,0);
 			
 			//Now that we've cleared a buffer, we need to actually render the text to it
 			var tf:TextFormat = _tf.defaultTextFormat;
+			var tfa:TextFormat = tf;
 			_mtx.identity();
 			//If it's a single, centered line of text, we center it ourselves so it doesn't blur to hell
 			if((tf.align == "center") && (_tf.numLines == 1))
 			{
-				_tf.setTextFormat(new TextFormat(tf.font,tf.size,tf.color,null,null,null,null,null,"left"));				
+				tfa = new TextFormat(tf.font,tf.size,tf.color,null,null,null,null,null,"left");
+				_tf.setTextFormat(tfa);				
 				_mtx.translate(Math.floor((width - _tf.getLineMetrics(0).width)/2),0);
 			}
-			_pixels.draw(_tf,_mtx,_ct);	//Actually draw the text onto the buffer
+			//Render a single pixel shadow beneath the text
+			if(_shadow > 0)
+			{
+				_tf.setTextFormat(new TextFormat(tfa.font,tfa.size,_shadow,null,null,null,null,null,tfa.align));				
+				_mtx.translate(1,1);
+				_pixels.draw(_tf,_mtx,_ct);
+				_mtx.translate(-1,-1);
+				_tf.setTextFormat(new TextFormat(tfa.font,tfa.size,tfa.color,null,null,null,null,null,tfa.align));
+			}
+			//Actually draw the text onto the buffer
+			_pixels.draw(_tf,_mtx,_ct);
 			_tf.setTextFormat(new TextFormat(tf.font,tf.size,tf.color,null,null,null,null,null,tf.align));
+			_framePixels = new BitmapData(_pixels.width,_pixels.height,true,0);
+			_framePixels.copyPixels(_pixels,_flashRect,_flashPointZero);
+			if(solid)
+				refreshHulls();
+		}
+		
+		/**
+		 * A helper function for updating the <code>TextField</code> that we use for rendering.
+		 * 
+		 * @return	A writable copy of <code>TextField.defaultTextFormat</code>.
+		 */
+		protected function dtfCopy():TextFormat
+		{
+			var dtf:TextFormat = _tf.defaultTextFormat;
+			return new TextFormat(dtf.font,dtf.size,dtf.color,dtf.bold,dtf.italic,dtf.underline,dtf.url,dtf.target,dtf.align);
 		}
 	}
 }

@@ -6,9 +6,8 @@ package org.flixel
 	import flash.display.StageAlign;
 	import flash.display.StageScaleMode;
 	import flash.events.*;
-	import flash.geom.ColorTransform;
+	import flash.geom.Point;
 	import flash.geom.Rectangle;
-	import flash.media.SoundTransform;
 	import flash.text.AntiAliasType;
 	import flash.text.GridFitType;
 	import flash.text.TextField;
@@ -16,34 +15,54 @@ package org.flixel
 	import flash.ui.Mouse;
 	import flash.utils.getTimer;
 	
-	import org.flixel.data.*;
+	import org.flixel.data.FlxConsole;
+	import org.flixel.data.FlxPause;
 
-	//@desc		FlxGame is the heart of all flixel games, and contains a bunch of basic game loops and things.  It is a long and sloppy file that you shouldn't have to worry about too much!
+	/**
+	 * FlxGame is the heart of all flixel games, and contains a bunch of basic game loops and things.
+	 * It is a long and sloppy file that you shouldn't have to worry about too much!
+	 * It is basically only used to create your game object in the first place,
+	 * after that FlxG and FlxState have all the useful stuff you actually need.
+	 */
 	public class FlxGame extends Sprite
 	{
-		[Embed(source="data/nokiafc22.ttf",fontFamily="system")] private var junk:String;
-		[Embed(source="data/poweredby.png")] private var ImgPoweredBy:Class;
-		[Embed(source="data/beep.mp3")] private var SndBeep:Class;
-		[Embed(source="data/flixel.mp3")] private var SndFlixel:Class;
+		[Embed(source="data/nokiafc22.ttf",fontFamily="system")] protected var junk:String;
+		[Embed(source="data/beep.mp3")] protected var SndBeep:Class;
+		[Embed(source="data/flixel.mp3")] protected var SndFlixel:Class;
 
+		/**
+		 * Essentially locks the framerate to 30 FPS minimum
+		 */
 		internal const MAX_ELAPSED:Number = 0.0333;
+
+		/**
+		 * Sets 0, -, and + to control the global volume and P to pause.
+		 * @default true
+		 */
+		public var useDefaultHotKeys:Boolean;
+		/**
+		 * Displayed whenever the game is paused.
+		 * Override with your own <code>FlxLayer</code> for hot custom pause action!
+		 * Defaults to <code>data.FlxPause</code>.
+		 */
+		public var pause:FlxGroup;
 		
 		//startup
 		internal var _iState:Class;
 		internal var _created:Boolean;
 		
 		//basic display stuff
+		internal var _state:FlxState;
 		internal var _buffer:Sprite;
 		internal var _bmpBack:Bitmap;
 		internal var _bmpFront:Bitmap;
+		internal var _r:Rectangle;
 		internal var _flipped:Boolean;
 		internal var _zoom:uint;
 		internal var _gameXOffset:int;
 		internal var _gameYOffset:int;
-		internal var _bgColor:Number;
 		internal var _frame:Class;
-		internal var _curState:FlxState;
-		internal var _cursor:Bitmap;
+		internal var _zeroPoint:Point;
 		
 		//basic update stuff
 		internal var _elapsed:Number;
@@ -51,123 +70,122 @@ package org.flixel
 		internal var _paused:Boolean;
 		
 		//Pause screen, sound tray, support panel, dev console, and special effects objects
-		internal var _pausePopup:FlxPause;
-		internal var _helpStrings:Array;
 		internal var _soundTray:Sprite;
 		internal var _soundTrayTimer:Number;
 		internal var _soundTrayBars:Array;
-		internal var _panel:FlxPanel;
 		internal var _console:FlxConsole;
-		internal var _quake:FlxQuake;
-		internal var _flash:FlxFlash;
-		internal var _fade:FlxFade;
-		//@desc		Sets 0, -, and + to global volume and P to pause (off by default)
-		public var useDefaultHotKeys:Boolean;
 		
-		//logo stuff
-		internal var _f:Array;
-		internal var _fc:uint;
-		internal var _logoComplete:Boolean;
-		internal var _logoTimer:Number;
-		internal var _poweredBy:Bitmap;
-		internal var _logoFade:Bitmap;
-		internal var _fSound:Class;
-		internal var _showLogo:Boolean;
-		
-		//@desc		Constructor
-		//@param	GameSizeX		The width of your game in pixels (e.g. 320)
-		//@param	GameSizeY		The height of your game in pixels (e.g. 240)
-		//@param	InitialState	The class name of the state you want to create and switch to first (e.g. MenuState)
-		//@param	Zoom			The level of zoom (e.g. 2 means all pixels are now rendered twice as big)
-		//@param	BGColor			The color of the Flash app's background
-		//@param	FlixelColor		The color of the great big 'f' in the flixel logo
-		//@param	FlixelSound		The sound that is played over the flixel 'f' logo
-		//@param	Frame			If you want you can add a little graphical frame to the outside edges of your game
-		//@param	ScreenOffsetX	If you use a frame, you're probably going to want to scoot your game down to fit properly inside it
-		//@param	ScreenOffsetY	These variables do exactly that :)	
-		public function FlxGame(GameSizeX:uint,GameSizeY:uint,InitialState:Class,Zoom:uint=2,BGColor:Number=0xff000000,ShowFlixelLogo:Boolean=true,FlixelColor:Number=0xffffffff,FlixelSound:Class=null,Frame:Class=null,ScreenOffsetX:uint=0,ScreenOffsetY:uint=0)
+		/**
+		 * Game object constructor - sets up the basic properties of your game.
+		 * 
+		 * @param	GameSizeX		The width of your game in pixels (e.g. 320).
+		 * @param	GameSizeY		The height of your game in pixels (e.g. 240).
+		 * @param	InitialState	The class name of the state you want to create and switch to first (e.g. MenuState).
+		 * @param	Zoom			The level of zoom (e.g. 2 means all pixels are now rendered twice as big).
+		 */
+		public function FlxGame(GameSizeX:uint,GameSizeY:uint,InitialState:Class,Zoom:uint=2)
 		{
+			flash.ui.Mouse.hide();
+			
 			_zoom = Zoom;
-			_gameXOffset = ScreenOffsetX;
-			_gameYOffset = ScreenOffsetY;
-			_bgColor = BGColor;
-			_fc = FlixelColor;
-			FlxG.setGameData(this,GameSizeX,GameSizeY);
-			_created = false;
-			addEventListener(Event.ENTER_FRAME, onEnterFrame);
+			FlxState.bgColor = 0xff000000;
+			FlxG.setGameData(this,GameSizeX,GameSizeY,Zoom);
 			_elapsed = 0;
 			_total = 0;
-			flash.ui.Mouse.hide();
-			_logoComplete = false;
-			_f = null;
-			_quake = new FlxQuake(_zoom);
-			_flash = new FlxFlash();
-			_fade = new FlxFade();
-			if(FlixelSound == null)
-				_fSound = SndFlixel;
-			else
-				_fSound = FlixelSound;
-			_curState = null;
-			_frame = Frame;
+			pause = new FlxPause();
+			_state = null;
 			_iState = InitialState;
+			_zeroPoint = new Point();
+
+			useDefaultHotKeys = true;
+			
+			_frame = null;
+			_gameXOffset = 0;
+			_gameYOffset = 0;
+			
 			_paused = false;
-			_helpStrings = new Array();
-			_helpStrings.push("Button 1");
-			_helpStrings.push("Button 2");
-			_helpStrings.push("Mouse");
-			_helpStrings.push("Move");
-			_showLogo = ShowFlixelLogo;
-			_panel = new FlxPanel();
-			useDefaultHotKeys = false;
+			_created = false;
+			addEventListener(Event.ENTER_FRAME, onEnterFrame);
 		}
 		
-		//@desc		Switch from one FlxState to another
-		//@param	State		The class name of the state you want (e.g. PlayState)
-		public function switchState(State:Class):void
+		/**
+		 * Adds a frame around your game for presentation purposes (see Canabalt, Gravity Hook).
+		 * 
+		 * @param	Frame			If you want you can add a little graphical frame to the outside edges of your game.
+		 * @param	ScreenOffsetX	Width in pixels of left side of frame.
+		 * @param	ScreenOffsetY	Height in pixels of top of frame.
+		 * 
+		 * @return	This <code>FlxGame</code> instance.
+		 */
+		protected function addFrame(Frame:Class,ScreenOffsetX:uint,ScreenOffsetY:uint):FlxGame
+		{
+			_frame = Frame;
+			_gameXOffset = ScreenOffsetX;
+			_gameYOffset = ScreenOffsetY;
+			return this;
+		}
+		
+		/**
+		 * Makes the little volume tray slide out.
+		 * 
+		 * @param	Silent	Whether or not it should beep.
+		 */
+		public function showSoundTray(Silent:Boolean=false):void
+		{
+			if(!Silent)
+				FlxG.play(SndBeep);
+			_soundTrayTimer = 1;
+			_soundTray.y = _gameYOffset*_zoom;
+			_soundTray.visible = true;
+			var gv:uint = Math.round(FlxG.volume*10);
+			if(FlxG.mute)
+				gv = 0;
+			for (var i:uint = 0; i < _soundTrayBars.length; i++)
+			{
+				if(i < gv) _soundTrayBars[i].alpha = 1;
+				else _soundTrayBars[i].alpha = 0.5;
+			}
+		}
+		
+		/**
+		 * Switch from one <code>FlxState</code> to another.
+		 * Usually called from <code>FlxG</code>.
+		 * 
+		 * @param	State		The class name of the state you want (e.g. PlayState)
+		 */
+		public function switchState(State:FlxState):void
 		{ 
-			_panel.hide();
+			//Basic reset stuff
+			FlxG.panel.hide();
 			FlxG.unfollow();
-			FlxG.keys.reset();
-			FlxG.mouse.reset();
-			FlxG.hideCursor();
+			FlxG.resetInput();
 			FlxG.destroySounds();
-			_flash.restart(0,0);
-			_fade.restart(0,0);
-			_quake.reset(0);
+			FlxG.flash.stop();
+			FlxG.fade.stop();
+			FlxG.quake.stop();
 			_buffer.x = 0;
 			_buffer.y = 0;
-			var newState:FlxState = new State;
-			_buffer.addChild(newState);
-			if(_curState != null)
+			
+			//Swap the new state for the old one and dispose of it
+			_buffer.addChild(State);
+			if(_state != null)
 			{
-				_buffer.swapChildren(newState,_curState);
-				_buffer.removeChild(_curState);
-				_curState.destroy();
+				_state.destroy(); //important that it is destroyed while still in the display list
+				_buffer.swapChildren(State,_state);
+				_buffer.removeChild(_state);
 			}
-			_curState = newState;
+			_state = State;
+			
+			//Finally, create the new state
+			_state.create();
 		}
-		
-		//@desc		Sets up the strings that are displayed on the left side of the pause game popup
-		//@param	X		What to display next to the X button
-		//@param	C		What to display next to the C button
-		//@param	Mouse	What to display next to the mouse icon
-		//@param	Arrows	What to display next to the arrows icon
-		protected function help(X:String=null,C:String=null,Mouse:String=null,Arrows:String=null):void
+
+		/**
+		 * Internal event handler for input and focus.
+		 */
+		protected function onKeyUp(event:KeyboardEvent):void
 		{
-			if(X != null)
-				_helpStrings[0] = X;
-			if(C != null)
-				_helpStrings[1] = C;
-			if(Mouse != null)
-				_helpStrings[2] = Mouse;
-			if(Arrows != null)
-				_helpStrings[3] = Arrows;
-		}
-		
-		//@desc		This function is only used by the FlxGame class to do important internal management stuff
-		private function onKeyUp(event:KeyboardEvent):void
-		{
-			if(event.keyCode == 192)
+			if((event.keyCode == 192) || (event.keyCode == 220)) //FOR ZE GERMANZ
 			{
 				_console.toggle();
 				return;
@@ -179,14 +197,17 @@ package org.flixel
 				switch(c)
 				{
 					case 48:
+					case 96:
 						FlxG.mute = !FlxG.mute;
 						showSoundTray();
 						return;
+					case 109:
 					case 189:
 						FlxG.mute = false;
 			    		FlxG.volume = FlxG.volume - 0.1;
 			    		showSoundTray();
 						return;
+					case 107:
 					case 187:
 						FlxG.mute = false;
 			    		FlxG.volume = FlxG.volume + 0.1;
@@ -200,188 +221,160 @@ package org.flixel
 			FlxG.keys.handleKeyUp(event);
 		}
 		
-		//@desc		This function is only used by the FlxGame class to do important internal management stuff
-		private function onKeyDown(event:KeyboardEvent):void
+		/**
+		 * Internal event handler for input and focus.
+		 */
+		protected function onFocus(event:Event=null):void
 		{
-			FlxG.keys.handleKeyDown(event);
+			if(FlxG.pause)
+				FlxG.pause = false;
 		}
 		
-		//@desc		This function is only used by the FlxGame class to do important internal management stuff
-		private function onMouseUp(event:MouseEvent):void
-		{
-			FlxG.mouse.handleMouseUp(event);
-		}
-		
-		//@desc		This function is only used by the FlxGame class to do important internal management stuff
-		private function onMouseDown(event:MouseEvent):void
-		{
-			FlxG.mouse.handleMouseDown(event);
-		}
-		
-		//@desc		This function is only used by the FlxGame class to do important internal management stuff
-		private function onFocus(event:Event=null):void
-		{
-			FlxG.pause = false;
-		}
-		
-		//@desc		This function is only used by the FlxGame class to do important internal management stuff
-		private function onFocusLost(event:Event=null):void
+		/**
+		 * Internal event handler for input and focus.
+		 */
+		protected function onFocusLost(event:Event=null):void
 		{
 			FlxG.pause = true;
 		}
 		
-		internal function unpause():void
+		/**
+		 * Internal function to help with basic pause game functionality.
+		 */
+		internal function unpauseGame():void
 		{
-			if(!_panel.visible) flash.ui.Mouse.hide();
-			_pausePopup.visible = false;
+			if(!FlxG.panel.visible) flash.ui.Mouse.hide();
 			FlxG.resetInput();
 			_paused = false;
-			stage.frameRate = 90;
+			stage.frameRate = 60;
 		}
 		
-		internal function pause():void
+		/**
+		 * Internal function to help with basic pause game functionality.
+		 */
+		internal function pauseGame():void
 		{
 			if((x != 0) || (y != 0))
 			{
 				x = 0;
 				y = 0;
 			}
+			if(!_flipped)
+				_bmpBack.bitmapData.copyPixels(_bmpFront.bitmapData,_r,_zeroPoint);
+			else
+				_bmpFront.bitmapData.copyPixels(_bmpBack.bitmapData,_r,_zeroPoint);
 			flash.ui.Mouse.show();
-			_pausePopup.visible = true;
 			_paused = true;
 			stage.frameRate = 10;
 		}
 		
-		//@desc		This is the main game loop, but only once creation and logo playback is finished
-		private function onEnterFrame(event:Event):void
+		/**
+		 * This is the main game loop, but only once creation and logo playback is finished.
+		 */
+		protected function onEnterFrame(event:Event):void
 		{
 			var i:uint;
+			var soundPrefs:FlxSave;
 			
 			//Frame timing
 			var t:uint = getTimer();
 			_elapsed = (t-_total)/1000;
+			if(_created)
+				_console.lastElapsed = _elapsed;
 			_total = t;
 			FlxG.elapsed = _elapsed;
 			if(FlxG.elapsed > MAX_ELAPSED)
 				FlxG.elapsed = MAX_ELAPSED;
+			FlxG.elapsed *= FlxG.timeScale;
 			
-			if(_logoComplete)
+			if(_soundTray != null)
 			{
-				//Animate flixel HUD elements
-				_panel.update();
-				_console.update();
 				if(_soundTrayTimer > 0)
 					_soundTrayTimer -= _elapsed;
 				else if(_soundTray.y > -_soundTray.height)
 				{
 					_soundTray.y -= _elapsed*FlxG.height*2;
-					if(_soundTray.y < -_soundTray.height)
+					if(_soundTray.y <= -_soundTray.height)
+					{
 						_soundTray.visible = false;
-				}
-				
-				//State updating
-				if(!_paused)
-				{
-					FlxG.updateInput();
-					if(_cursor != null)
-					{
-						_cursor.x = FlxG.mouse.x+FlxG.scroll.x;
-						_cursor.y = FlxG.mouse.y+FlxG.scroll.y;
+						
+						//Save sound preferences
+						soundPrefs = new FlxSave();
+						if(soundPrefs.bind("flixel"))
+						{
+							if(soundPrefs.data.sound == null)
+								soundPrefs.data.sound = new Object;
+							soundPrefs.data.mute = FlxG.mute;
+							soundPrefs.data.volume = FlxG.volume;
+							soundPrefs.forceSave();
+						}
 					}
-					FlxG.doFollow();
-					_curState.update();
-					FlxG.updateSounds();
-					
-					//Update the various special effects
-					_flash.update()
-					_fade.update();
-					_quake.update();
-					_buffer.x = _quake.x;
-					_buffer.y = _quake.y;					
-					
-					//Clear buffer
-					if(_flipped)
-					{
-						_bmpFront.bitmapData.fillRect(new Rectangle(0,0,_bmpFront.width,_bmpFront.height),_bgColor);
-						FlxG.buffer = _bmpFront.bitmapData;
-					}
-					else
-					{
-						_bmpBack.bitmapData.fillRect(new Rectangle(0,0,_bmpBack.width,_bmpBack.height),_bgColor);
-						FlxG.buffer = _bmpBack.bitmapData;
-					}
-					
-					//Render game content, special fx, and overlays
-					_curState.render();
-					_flash.render();
-					_fade.render();
-					_panel.render();
-					
-					//Swap buffers
-					_bmpBack.visible = !(_bmpFront.visible = _flipped);
-					_flipped = !_flipped;
 				}
 			}
-			else if(_created)
+			
+			if(_created)
 			{
-				if(!_showLogo)
+				//Animate flixel HUD elements
+				FlxG.panel.update();
+				_console.update();
+				
+				//State updating
+				FlxG.updateInput();
+				FlxG.updateSounds();
+				if(_paused)
 				{
-					_logoComplete = true;
-					FlxG.switchState(_iState);
+					pause.update();
+					if(_flipped)
+						FlxG.buffer.copyPixels(_bmpFront.bitmapData,_r,_zeroPoint);
+					else
+						FlxG.buffer.copyPixels(_bmpBack.bitmapData,_r,_zeroPoint);
+					pause.render();
 				}
 				else
 				{
-					if(_f == null)
+					//Clear video buffer
+					if(_flipped)
+						FlxG.buffer = _bmpFront.bitmapData;
+					else
+						FlxG.buffer = _bmpBack.bitmapData;
+					FlxState.screen.unsafeBind(FlxG.buffer);
+					_state.preProcess();
+					
+					//Update the camera and game state
+					FlxG.doFollow();
+					_state.update();
+					
+					//Update the various special effects
+					if(FlxG.flash.exists)
+						FlxG.flash.update();
+					if(FlxG.fade.exists)
+						FlxG.fade.update();
+					FlxG.quake.update();
+					_buffer.x = FlxG.quake.x;
+					_buffer.y = FlxG.quake.y;
+					
+					//Render game content, special fx, and overlays
+					_state.render();
+					if(FlxG.flash.exists)
+						FlxG.flash.render();
+					if(FlxG.fade.exists)
+						FlxG.fade.render();
+					if(FlxG.panel.visible)
+						FlxG.panel.render();
+					if(FlxG.mouse.cursor != null)
 					{
-						var tmp:Bitmap;
-						_f = new Array();
-						var scale:uint = 1;
-						if(FlxG.height > 200)
-							scale = 2;
-						var pixelSize:uint = 32*scale;
-						var top:int = FlxG.height*_zoom/2-pixelSize*2;
-						var left:int = FlxG.width*_zoom/2-pixelSize;
-						
-						_f.push(addChild(new FlxLogoPixel(left+pixelSize,top,pixelSize,0,_fc)) as FlxLogoPixel);
-						_f.push(addChild(new FlxLogoPixel(left,top+pixelSize,pixelSize,1,_fc)) as FlxLogoPixel);
-						_f.push(addChild(new FlxLogoPixel(left,top+pixelSize*2,pixelSize,2,_fc)) as FlxLogoPixel);
-						_f.push(addChild(new FlxLogoPixel(left+pixelSize,top+pixelSize*2,pixelSize,3,_fc)) as FlxLogoPixel);
-						_f.push(addChild(new FlxLogoPixel(left,top+pixelSize*3,pixelSize,4,_fc)) as FlxLogoPixel);
-						
-						_poweredBy = new ImgPoweredBy;
-						_poweredBy.scaleX = scale;
-						_poweredBy.scaleY = scale;
-						_poweredBy.x = FlxG.width*_zoom/2-_poweredBy.width/2;
-						_poweredBy.y = top+pixelSize*4+16;
-						var ct:ColorTransform = new ColorTransform();
-						ct.color = _fc;
-						_poweredBy.bitmapData.colorTransform(new Rectangle(0,0,_poweredBy.width,_poweredBy.height),ct);
-						addChild(_poweredBy);
-						
-						_logoFade = addChild(new Bitmap(new BitmapData(FlxG.width*_zoom,FlxG.height*_zoom,true,0xFF000000))) as Bitmap;
-						_logoFade.x = _gameXOffset*_zoom;
-						_logoFade.y = _gameYOffset*_zoom;
-						
-						if(_fSound != null)
-							(new _fSound).play(0,0,new SoundTransform(0.35,0));
+						if(FlxG.mouse.cursor.active)
+							FlxG.mouse.cursor.update();
+						if(FlxG.mouse.cursor.visible)
+							FlxG.mouse.cursor.render();
 					}
 					
-					_logoTimer += _elapsed;
-					for(i = 0; i < _f.length; i++)
-						_f[i].update();
-					if(_logoFade.alpha > 0)
-						_logoFade.alpha -= _elapsed*0.5;
-						
-					if(_logoTimer > 2)
-					{
-						removeChild(_poweredBy);
-						for(i = 0; i < _f.length; i++)
-							removeChild(_f[i]);
-						_f.length = 0;
-						removeChild(_logoFade);
-						FlxG.switchState(_iState);
-						_logoComplete = true;
-					}
+					//Post-processing hook
+					_state.postProcess();
+					
+					//Swap video buffers
+					_bmpBack.visible = !(_bmpFront.visible = _flipped);
+					_flipped = !_flipped;
 				}
 			}
 			else if(root != null)
@@ -389,20 +382,21 @@ package org.flixel
 				//Set up the view window and double buffering
 				stage.scaleMode = StageScaleMode.NO_SCALE;
 	            stage.align = StageAlign.TOP_LEFT;
-	            stage.frameRate = 90;
+	            stage.frameRate = 60;
 	            _buffer = new Sprite();
 	            _buffer.scaleX = _zoom;
 	            _buffer.scaleY = _zoom;
 	            addChild(_buffer);
-				_bmpBack = new Bitmap(new BitmapData(FlxG.width,FlxG.height,true,_bgColor));
+				_bmpBack = new Bitmap(new BitmapData(FlxG.width,FlxG.height,true,FlxState.bgColor));
 				_bmpBack.x = _gameXOffset;
 				_bmpBack.y = _gameYOffset;
 				_buffer.addChild(_bmpBack);
-				_bmpFront = new Bitmap(new BitmapData(_bmpBack.width,_bmpBack.height,true,_bgColor));
+				_bmpFront = new Bitmap(new BitmapData(_bmpBack.width,_bmpBack.height,true,FlxState.bgColor));
 				_bmpFront.x = _bmpBack.x;
 				_bmpFront.y = _bmpBack.y;
 				_buffer.addChild(_bmpFront);
 				_flipped = false;
+				_r = new Rectangle(0,0,_bmpFront.width,_bmpFront.height);
 				
 				//Initialize game console
 				_console = new FlxConsole(_gameXOffset,_gameYOffset,_zoom);
@@ -419,14 +413,14 @@ package org.flixel
 				FlxG.log(underline);
 				
 				//Add basic input even listeners
-				stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
+				stage.addEventListener(KeyboardEvent.KEY_DOWN, FlxG.keys.handleKeyDown);
 				stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
-				stage.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
-				stage.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
-				
+				stage.addEventListener(MouseEvent.MOUSE_DOWN, FlxG.mouse.handleMouseDown);
+				stage.addEventListener(MouseEvent.MOUSE_UP, FlxG.mouse.handleMouseUp);
+				stage.addEventListener(MouseEvent.MOUSE_OUT, FlxG.mouse.handleMouseOut);
+				stage.addEventListener(MouseEvent.MOUSE_OVER, FlxG.mouse.handleMouseOver);
+								
 				//Initialize the pause screen
-				_pausePopup = new FlxPause(_gameXOffset,_gameYOffset,_zoom,_helpStrings);
-				addChild(_pausePopup);
 				stage.addEventListener(Event.DEACTIVATE, onFocusLost);
 				stage.addEventListener(Event.ACTIVATE, onFocus);
 				
@@ -435,7 +429,7 @@ package org.flixel
 				_soundTray.visible = false;
 				_soundTray.scaleX = 2;
 				_soundTray.scaleY = 2;
-				tmp = new Bitmap(new BitmapData(80,30,true,0x7F000000));
+				var tmp:Bitmap = new Bitmap(new BitmapData(80,30,true,0x7F000000));
 				_soundTray.x = (_gameXOffset+FlxG.width/2)*_zoom-(tmp.width/2)*_soundTray.scaleX;
 				_soundTray.addChild(tmp);
 				
@@ -476,37 +470,21 @@ package org.flixel
 					addChild(bmp);
 				}
 				
+				//Check for saved sound preference data
+				soundPrefs = new FlxSave();
+				if(soundPrefs.bind("flixel") && (soundPrefs.data.sound != null))
+				{
+					if(soundPrefs.data.volume != null)
+						FlxG.volume = soundPrefs.data.volume;
+					if(soundPrefs.data.mute != null)
+						FlxG.mute = soundPrefs.data.mute;
+					showSoundTray(true);
+				}
+				
 				//All set!
 				_created = true;
-				_logoTimer = 0;
+				switchState(new _iState());
 			}
-		}
-		
-		//@desc		Makes the little volume tray slide out
-		public function showSoundTray():void
-		{
-			FlxG.play(SndBeep);
-			_soundTrayTimer = 1;
-			_soundTray.y = _gameYOffset*_zoom;
-			_soundTray.visible = true;
-			var gv:uint = Math.round(FlxG.volume*10);
-			if(FlxG.mute)
-				gv = 0;
-			for (var i:uint = 0; i < _soundTrayBars.length; i++)
-			{
-				if(i < gv) _soundTrayBars[i].alpha = 1;
-				else _soundTrayBars[i].alpha = 0.5;
-			}
-		}
-		
-		//@desc		Set up the support panel thingy with donation and aggregation info
-		//@param	PayPalID		Your paypal username, usually your email address (leave it blank to disable donations)
-		//@param	PayPalAmount	The default amount of the donation
-		//@param	GameTitle		The text that you would like to appear in the aggregation services (usually just the name of your game)
-		//@param	GameURL			The URL you would like people to use when trying to find your game
-		protected function setupSupportPanel(PayPalID:String,PayPalAmount:Number,GameTitle:String,GameURL:String,Caption:String):void
-		{
-			_panel.init(PayPalID,PayPalAmount,GameTitle,GameURL,Caption);
 		}
 	}
 }
