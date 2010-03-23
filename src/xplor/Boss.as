@@ -112,7 +112,7 @@
 				FlxG.play(hitSnd);
 		}
 		
-		public override function hitWall(Contact:FlxCore=null):Boolean
+		public override function hitWall(Contact:FlxObject=null):Boolean
 		{
 			this.velocity.x = -this.velocity.x;
 			if (velocity.x > 0)

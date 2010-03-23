@@ -13,18 +13,19 @@
 		
 		public function MenuButton(X:int, Y:int, callback:Function, label:String = "", label2:String = null) 
 		{
-			var on:FlxSprite = new FlxSprite(BtnOnImage);
-			var off:FlxSprite = new FlxSprite(BtnOffImage);
-			var txt:FlxText = new FlxText(0, 5, on.width, label, 0xff000000, null, 8, "center");
+			var on:FlxSprite = new FlxSprite(0, 0, BtnOnImage);
+			var off:FlxSprite = new FlxSprite(0, 0, BtnOffImage);
+			var txt:FlxText = new FlxText(0, 5, on.width, label).setFormat(null, 8, 0xff000000, "center");
 			var txt2:FlxText;
 			
 			if (label2 != null) {
-				txt2 = new FlxText(0, 5, on.width, label2, 0xff000000, null, 8, "center");
+				txt2 = new FlxText(0, 5, on.width, label2).setFormat(null, 8, 0xff000000, "center");
 			} else {
 				txt2 = txt;
 			}
 			
-			super(X - (on.width / 2), Y, off, callback, on, txt, txt2);
+			super(X - (on.width / 2), Y, callback);
+			loadGraphic(off, on).loadText(txt, txt2);
 		}
 	}
 }

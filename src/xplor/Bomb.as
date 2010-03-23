@@ -15,7 +15,8 @@
 
 		public function Bomb()
 		{
-			super(LaserImage,0,0,true,true);
+			super(0, 0);
+			loadGraphic(LaserImage, true, true);
 
 			exists = false;
 
@@ -37,25 +38,30 @@
 				super.update();
 		}
 		
-		override public function hitWall(Contact:FlxCore = null):Boolean 
+		override public function hitLeft(Contact:FlxObject, Vel:Number):void
 		{
 			hurt(0); 
 			if (onScreen()) FlxG.play(hitSnd);
-			return true; 
+			velocity.x = Vel;
 		}
 		
-		override public function hitFloor(Contact:FlxCore = null):Boolean 
-		{ 
-			hurt(0); 
-			if (onScreen()) FlxG.play(hitSnd);
-			return true; 
+		override public function hitRight(Contact:FlxObject, Vel:Number):void
+		{
+			hitLeft(Contact, Vel);
 		}
 		
-		override public function hitCeiling(Contact:FlxCore = null):Boolean 
+		override public function hitBottom(Contact:FlxObject, Vel:Number):void
 		{ 
+			velocity.y = Vel;
 			hurt(0); 
 			if (onScreen()) FlxG.play(hitSnd);
-			return true; 
+		}
+		
+		override public function hitTop(Contact:FlxObject, Vel:Number):void
+		{ 
+			velocity.y = Vel;
+			hurt(0); 
+			if (onScreen()) FlxG.play(hitSnd);
 		}
 
 		override public function hurt(Damage:Number):void

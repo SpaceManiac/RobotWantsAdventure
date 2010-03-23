@@ -59,7 +59,7 @@
 			velocity.y = -velocity.y;
 		}
 		
-		public override function hitFloor(Contact:FlxCore=null):Boolean
+		public override function hitFloor(Contact:FlxObject=null):Boolean
 		{
 			this.velocity.y = -ConfigState.BlueAlienSpeed;
 			if (Math.random() < 0.5)
@@ -70,7 +70,7 @@
 			return true;
 		}
 		
-		public override function hitCeiling(Contact:FlxCore=null):Boolean
+		public override function hitCeiling(Contact:FlxObject=null):Boolean
 		{
 			this.velocity.y = ConfigState.BlueAlienSpeed;
 			if (Math.random() < 0.5)

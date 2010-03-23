@@ -11,7 +11,7 @@
 		public function Fireball(map:FlxTilemap) 
 		{
 			this.map = map;
-			super(rocketPic);
+			super(0, 0, rocketPic);
 			exists = true;
 		}
 		

@@ -421,7 +421,7 @@
 			}
 		}
 
-		override public function hitFloor(Contact:FlxCore = null):Boolean 
+		override public function hitBottom(Contact:FlxObject, Vel:Number):void
 		{
 			velocity.y = 0; 
 			airjump = 0;
@@ -429,11 +429,11 @@
 				dashTime = 0;
 				dashed = false;
 			}
-			return true;
 		}
 		
-		override public function hitWall(Contact:FlxCore = null):Boolean 
+		override public function hitLeft(Contact:FlxObject, Vel:Number):void
 		{
+			velocity.x = Vel;
 			var tx:int, ty:int;
 			
 			if(facing==RIGHT)
@@ -462,7 +462,11 @@
 				FlxG.play(doorSnd);
 			}
 			super.hitWall(Contact);
-			return true;
+		}
+		
+		override public function hitRight(Contact:FlxObject, Vel:Number):void
+		{
+			hitLeft();
 		}
 		
 	}

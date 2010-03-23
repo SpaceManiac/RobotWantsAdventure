@@ -31,21 +31,21 @@
 				super.update();
 		}
 		
-		override public function hitWall(Contact:FlxCore = null):Boolean 
+		override public function hitWall(Contact:FlxObject = null):Boolean 
 		{
 			hurt(0); 
 			FlxG.play(hitSnd);
 			return true; 
 		}
 		
-		override public function hitFloor(Contact:FlxCore = null):Boolean 
+		override public function hitFloor(Contact:FlxObject = null):Boolean 
 		{ 
 			hurt(0); 
 			FlxG.play(hitSnd);
 			return true; 
 		}
 		
-		override public function hitCeiling(Contact:FlxCore = null):Boolean 
+		override public function hitCeiling(Contact:FlxObject = null):Boolean 
 		{ 
 			hurt(0); 
 			FlxG.play(hitSnd);

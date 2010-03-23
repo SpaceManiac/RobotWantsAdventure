@@ -24,7 +24,8 @@
 		
 		public function Ouchtopus(x:int,y:int,bombs:Array) 
 		{
-			super(AlienImage, x*16, y*16, true,true);
+			super(x * 16, y * 16);
+			loadGraphic(AlienImage, true, true);
    
 			this.height = 11;
 			this.bombs = bombs;

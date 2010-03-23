@@ -40,17 +40,17 @@
 				super.update();
 		}
 		
-		override public function hitWall(Contact:FlxCore = null):Boolean 
+		override public function hitWall(Contact:FlxObject = null):Boolean 
 		{
 			return false;
 		}
 		
-		override public function hitFloor(Contact:FlxCore = null):Boolean 
+		override public function hitFloor(Contact:FlxObject = null):Boolean 
 		{ 
 			return false;
 		}
 		
-		override public function hitCeiling(Contact:FlxCore = null):Boolean 
+		override public function hitCeiling(Contact:FlxObject = null):Boolean 
 		{
 			var tx:int = x / 16;
 			var ty:int = y / 16;

@@ -58,9 +58,8 @@
         override public function ConfigState() {
 			FlxG.log("ConfigState opened");
 			this.add(new Background());
-            add(new FlxText(0, 8, FlxG.width, "Game Options", 0xffffffff, null, 16, "center"));
-            add(new FlxText(0, 190, FlxG.width, "Up/down to select, l/r to change", 0xffffffff, null, 8, "center"));
-            //add(new FlxText(0, FlxG.height  -12, FlxG.width, "Press Z to return", 0xffffffff, null, 8, "center"));
+            add(new FlxText(0, 8, FlxG.width, "Game Options").setFormat(null, 16, 0xffffff, "center"));
+            add(new FlxText(0, 190, FlxG.width, "Up/down to select, l/r to change").setFormat(null, 16, 0xffffff, "center"));
 			
             add(new MenuButton(FlxG.width / 2, 210, finish, "Main Menu"));
 			
