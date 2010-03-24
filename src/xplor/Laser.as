@@ -13,7 +13,8 @@
 
 		public function Laser()
 		{
-			super(LaserImage,0,0,true,true);
+			super(0, 0);
+			loadGraphic(LaserImage, true, true);
 
 			exists = false;
 
@@ -31,25 +32,27 @@
 				super.update();
 		}
 		
-		override public function hitWall(Contact:FlxObject = null):Boolean 
+		override public function hitLeft(Contact:FlxObject, Vel:Number):void
 		{
 			hurt(0); 
 			FlxG.play(hitSnd);
-			return true; 
 		}
 		
-		override public function hitFloor(Contact:FlxObject = null):Boolean 
+		override public function hitRight(Contact:FlxObject, Vel:Number):void
+		{
+			hitLeft(Contact, Vel);
+		}
+		
+		override public function hitBottom(Contact:FlxObject, Vel:Number):void
 		{ 
 			hurt(0); 
 			FlxG.play(hitSnd);
-			return true; 
 		}
 		
-		override public function hitCeiling(Contact:FlxObject = null):Boolean 
+		override public function hitTop(Contact:FlxObject, Vel:Number):void
 		{ 
 			hurt(0); 
 			FlxG.play(hitSnd);
-			return true; 
 		}
 
 		override public function hurt(Damage:Number):void

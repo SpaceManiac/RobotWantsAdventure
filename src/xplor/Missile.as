@@ -19,7 +19,8 @@
 		public function Missile(map:FlxTilemap)
 		{
 			this.map = map;
-			super(MissileImage, 0, 0, true, true);
+			super(0, 0);
+			loadGraphic(MissileImage, true, true);
 
 			exists = false;
 			
@@ -40,17 +41,11 @@
 				super.update();
 		}
 		
-		override public function hitWall(Contact:FlxObject = null):Boolean 
-		{
-			return false;
-		}
+		override public function hitLeft(Contact:FlxObject, Vel:Number):void { }
+		override public function hitRight(Contact:FlxObject, Vel:Number):void { }
+		override public function hitBottom(Contact:FlxObject, Vel:Number):void { }
 		
-		override public function hitFloor(Contact:FlxObject = null):Boolean 
-		{ 
-			return false;
-		}
-		
-		override public function hitCeiling(Contact:FlxObject = null):Boolean 
+		override public function hitTop(Contact:FlxObject, Vel:Number):void
 		{
 			var tx:int = x / 16;
 			var ty:int = y / 16;
@@ -64,7 +59,6 @@
 			
 			hurt(0); 
 			FlxG.play(hitSnd);
-			return true; 
 		}
 
 		override public function hurt(Damage:Number):void

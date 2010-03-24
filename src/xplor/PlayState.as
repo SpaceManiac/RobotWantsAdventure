@@ -46,7 +46,9 @@
 			}
 			
 			// and finally convert that array into a CSV for FlxTilemap to comprehend!
-			tileMap = new FlxTilemap(FlxTilemap.arrayToCSV(a,mapWidth), TilesImage, 16, 50, 1);
+			tileMap = new FlxTilemap();
+			tileMap.collideIndex = 50;
+			tileMap.loadMap(FlxTilemap.arrayToCSV(a, mapWidth), TilesImage);
 			this.add(tileMap);
 			
 			// populate the map
@@ -145,7 +147,7 @@
 			timerTxt.y = Math.abs( FlxG.scroll.y);//player.y + 10;
 		}
 		
-		override public function create()
+		override public function create():void
 		{
 			FlxG.log("PlayState opened");
 			
@@ -159,7 +161,7 @@
 				
 			timer = 0;
 			LoadMap();
-			timerTxt = new FlxText(0, 0, 100, "0:00", 0xffffffff, null, 8, "center");
+			timerTxt = new FlxText(0, 0, 100, "0:00").setFormat(null, 8, 0xffffffff, "center");
 			if (ConfigState.Timer) add(timerTxt);
 			TimerText();
 			
@@ -213,7 +215,7 @@
 			{
 				TimerText();
 				WinState.time = "Your time: " + timerTxt.text;
-				FlxG.switchState(WinState);
+				FlxG.state = new WinState;
 			}
 			if (FlxG.keys.justPressed("R")) {
 				player.Die();
@@ -226,8 +228,8 @@
 			}
 			
 			if (FlxG.keys.justPressed("Q")) {
-				FlxG.flash(0xffffffff, 0.75);
-				FlxG.fade(0xff000000, 0.5, onFade);
+				FlxG.flash.start(0xffffffff, 0.75);
+				FlxG.fade.start(0xff000000, 0.5, onFade);
 				FlxG.play(dieSnd);
 			}
 			timer += FlxG.elapsed;
@@ -240,7 +242,7 @@
 		}
 		
 		private function onFade():void {
-			FlxG.switchState(TitleState);
+			FlxG.state = new TitleState;
 		}
 	}
 	

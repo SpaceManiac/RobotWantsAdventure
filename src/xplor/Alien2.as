@@ -23,7 +23,8 @@
 		
 		public function Alien2(x:int,y:int,map:Array) 
 		{
-			super(AlienImage, x*16, y*16, true,true);
+			super(x * 16, y * 16);
+			loadGraphic(AlienImage, true, true);
    
 			this.map = map;
 			addAnimation("float", [0, 1, 2, 3], 16, true);
@@ -50,7 +51,7 @@
 				FlxG.play(dieSnd);
 				boom.x = x +width / 2;
 				boom.y = y + height / 2;
-				boom.restart();
+				boom.start();
 				justdied = true;
 				return;
 			}
@@ -59,7 +60,7 @@
 			velocity.y = -velocity.y;
 		}
 		
-		public override function hitFloor(Contact:FlxObject=null):Boolean
+		public override function hitBottom(Contact:FlxObject, Vel:Number):void
 		{
 			this.velocity.y = -ConfigState.BlueAlienSpeed;
 			if (Math.random() < 0.5)
@@ -67,10 +68,9 @@
 			else
 				this.facing = RIGHT;
 				
-			return true;
 		}
 		
-		public override function hitCeiling(Contact:FlxObject=null):Boolean
+		public override function hitTop(Contact:FlxObject, Vel:Number):void
 		{
 			this.velocity.y = ConfigState.BlueAlienSpeed;
 			if (Math.random() < 0.5)
@@ -78,7 +78,6 @@
 			else
 				this.facing = RIGHT;
 				
-			return true;
 		}
 
 	}

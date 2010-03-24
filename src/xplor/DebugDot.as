@@ -9,7 +9,7 @@
 		
 		public function DebugDot(x:int, y:int) 
 		{
-			super(DotImage, x, y, false);
+			super(x, y, DotImage);
 			this.offset.x = 3;
 			this.offset.y = 3;
 			

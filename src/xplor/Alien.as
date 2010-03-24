@@ -23,7 +23,8 @@
 		
 		public function Alien(x:int,y:int,map:FlxTilemap) 
 		{
-			super(AlienImage, x*16, y*16, true,true);
+			super(x * 16, y * 16);
+			loadGraphic(AlienImage, true, true);
    
 			this.map = map;
 			addAnimation("walk", [0, 1, 2, 3], 12, true);
@@ -64,7 +65,7 @@
 				FlxG.play(dieSnd);
 				boom.x = x +width / 2;
 				boom.y = y + height / 2;
-				boom.restart();
+				boom.start();
 				justdied = true;
 				return;
 			}
@@ -77,14 +78,18 @@
 				facing = LEFT;
 		}
 		
-		public override function hitWall(Contact:FlxObject=null):Boolean
+		public override function hitLeft(Contact:FlxObject, Vel:Number):void
 		{
 			this.velocity.x = -this.velocity.x;
 			if (velocity.x > 0)
 				facing = RIGHT;
 			else
 				facing = LEFT;
-			return true;
+		}
+		
+		public override function hitRight(Contact:FlxObject, Vel:Number):void
+		{
+			hitLeft(Contact, Vel);
 		}
 
 	}

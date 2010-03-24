@@ -59,7 +59,8 @@
 			startx = x * 16;
 			starty = y * 16;
 			this.map = map;
-			super(PlayerImage, x*16, y*16, true, true);
+			super(x * 16, y * 16);
+			loadGraphic(PlayerImage, true, true);
 			this.offset.x = 4;
 			this.offset.y = 2;
 			this.width = 8;
@@ -145,7 +146,7 @@
 					if (powers[POWER_ROCKET] == 1)
 					{
 						velocity.y = -1200;
-						rocket.restart();
+						rocket.start();
 						rocketTime = 30;
 						FlxG.play(rocketSnd);
 					}
@@ -461,12 +462,11 @@
 				map.setTile(tx, ty, 0);
 				FlxG.play(doorSnd);
 			}
-			super.hitWall(Contact);
 		}
 		
 		override public function hitRight(Contact:FlxObject, Vel:Number):void
 		{
-			hitLeft();
+			hitLeft(Contact, Vel);
 		}
 		
 	}

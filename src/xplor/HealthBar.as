@@ -13,7 +13,7 @@
 		
 		public function HealthBar(x:int, y:int, health:int, width:int = 16) 
 		{
-			super(BarImage, x, y, false, false);
+			super(x, y, BarImage);
 			this.xwidth = width;
 			this.current = this.total = health;
 		}

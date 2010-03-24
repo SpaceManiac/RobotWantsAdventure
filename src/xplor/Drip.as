@@ -25,7 +25,8 @@
 		
 		public function Drip(x:int, y:int, map:Array, bombs:Array, player:xplor.Player) 
 		{
-			super(AlienImage, x*16, y*16, true,true);
+			super(x * 16, y * 16);
+			loadGraphic(AlienImage, true, true);
 			
 			this.player = player;
 			this.bombs = bombs;
@@ -46,7 +47,7 @@
 				org.flixel.FlxG.play(dieSnd, Xplor.FX_VOL);
 				boom.x = x + width / 2;
 				boom.y = y + height / 2;
-				boom.restart();
+				boom.start();
 				return;
 			}
 			org.flixel.FlxG.play(hitSnd, Xplor.FX_VOL);

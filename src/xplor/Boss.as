@@ -28,7 +28,8 @@
 		
 		public function Boss(x:int,y:int,map:Array,bombs:Array,player:Player) 
 		{
-			super(AlienImage, x * 16, y * 16, true, true);
+			super(x * 16, y * 16);
+			loadGraphic(AlienImage, true, true);
    
 			this.player = player;
 			this.bombs = bombs;
@@ -105,23 +106,26 @@
 				FlxG.play(dieSnd);
 				boom.x = x + width / 2;
 				boom.y = y + height / 2;
-				boom.restart();
+				boom.start();
 				return;
 			}
 			else
 				FlxG.play(hitSnd);
 		}
 		
-		public override function hitWall(Contact:FlxObject=null):Boolean
+		public override function hitLeft(Contact:FlxObject, Vel:Number):void
 		{
 			this.velocity.x = -this.velocity.x;
 			if (velocity.x > 0)
 				facing = RIGHT;
 			else
 				facing = LEFT;
-			return true;
 		}
-
+		
+		public override function hitRight(Contact:FlxObject, Vel:Number):void
+		{
+			hitLeft(Contact, Vel);
+		}
 	}
 	
 }
