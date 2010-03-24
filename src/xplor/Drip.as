@@ -43,7 +43,6 @@
 			super.hurt(dmg);
 			if (dead)
 			{
-				xplor.Version.GetKill();
 				org.flixel.FlxG.play(dieSnd, Xplor.FX_VOL);
 				boom.x = x + width / 2;
 				boom.y = y + height / 2;

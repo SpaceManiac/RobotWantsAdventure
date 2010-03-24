@@ -145,10 +145,9 @@
 			timerTxt.y = Math.abs( FlxG.scroll.y);//player.y + 10;
 		}
 		
-		public function PlayState()
+		override public function create()
 		{
 			FlxG.log("PlayState opened");
-			super();
 			
 			bg = new Background();
 			add(bg);

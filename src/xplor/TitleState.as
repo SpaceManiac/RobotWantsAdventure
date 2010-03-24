@@ -16,7 +16,7 @@
 		
 		private var fading:Boolean = false;
 		
-        override public function TitleState():void
+        override public function create():void
         {
 			FlxG.log("TitleState opened");
 			var b:ByteArray = new BuildNum();

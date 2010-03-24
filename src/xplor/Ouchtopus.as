@@ -80,7 +80,7 @@
 				FlxG.play(dieSnd);
 				boom.x = x +width / 2;
 				boom.y = y + height / 2;
-				boom.restart();
+				boom.start()
 				justdied = true;
 				return;
 			}

@@ -82,14 +82,14 @@
 			MapI = -1;
 		}
 		
-		public function AdvSelectState() 
+		override public function create():void 
 		{
 			FlxG.log("AdvSelectState opened");
 			add(new Background());
-            add(new FlxText(0, 8, FlxG.width, "Select Adventure", 0xffffffff, null, 16, "center"));
+            add(new FlxText(0, 8, FlxG.width, "Select Adventure").setFormat(null, 16, 0xffffffff, "center"));
             add(new MenuButton(FlxG.width / 2, 210, finish, "Main Menu"));
 			
-			add(highlight = new FlxSprite(HighlightImg, 0, 43));
+			add(highlight = new FlxSprite(0, 43, HighlightImg));
 			
 			add(new FlxText(20, 32, 30, "Num"));
 			add(new FlxText(50, 32, 140, "Adventure Name"));
@@ -101,7 +101,7 @@
 			mapTexts = new Array();
 			for (var i:int = 1; i <= 15; ++i) {
 				var txt_num:FlxText = new FlxText(20, 32 + 11 * i, 30, "-");
-				var txt_name:FlxText = new FlxText(50, 32 + 11 * i, 140, "");
+				var txt_name:FlxText = new FlxText(50, 32 + 11 * i, 150, "");
 				var txt_author:FlxText = new FlxText(200, 32 + 11 * i, 200, "");
 				add(txt_num);
 				add(txt_name);
@@ -163,8 +163,8 @@
 				fading = true;
 				finishedStage = false;
 				downloadMap();
-				FlxG.flash(0xffffffff, 0.75);
-				FlxG.fade(0xff000000, 0.5, onFade);
+				FlxG.flash.start(0xffffffff, 0.75);
+				FlxG.fade.start(0xff000000, 0.5, onFade);
 				FlxG.play(hitSnd);
 			}
 		}
@@ -174,7 +174,7 @@
 				FlxG.log("No map chosen, skipping download");
 				if (finishedStage) {
 					// don't update since we didn't download
-					FlxG.switchState(TitleState);
+					FlxG.state = new TitleState;
 				} else {
 					finishedStage = true;
 				}
@@ -199,7 +199,7 @@
 			
 			TitleState.Adventure = maplist[MapI]['name'] + " by " + maplist[MapI]['author'];
             if (finishedStage) {
-				FlxG.switchState(TitleState);
+				FlxG.state = new TitleState;
 			} else {
 				finishedStage = true;
 			}
@@ -208,7 +208,7 @@
 		
         private function onFade():void {
             if (finishedStage) {
-				FlxG.switchState(TitleState);
+				FlxG.state = new TitleState;
 			} else {
 				finishedStage = true;
 			}

@@ -14,7 +14,7 @@
 		
 		public function Cursor() 
 		{
-			super(CursorImg);
+			super(0, 0, CursorImg);
 			lastx = x = FlxG.mouse.x;
 			lasty = y = FlxG.mouse.y;
 			current = this;

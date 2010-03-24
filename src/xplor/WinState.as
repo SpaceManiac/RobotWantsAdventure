@@ -13,11 +13,11 @@
 		
 		public static var time:String = "";
 		
-        override public function WinState():void
+        override public function create():void
         {
-            pic = this.add(new FlxSprite(winPic, 0, 0)) as FlxSprite;
-			this.add(new FlxText(0, FlxG.height  -24, FlxG.width/2, "Press Z to quit", 0xffffffff, null, 8, "center"));
-			this.add(new FlxText(FlxG.width/2, 2, FlxG.width/2, time, 0xffffffff, null, 8, "center"));
+            pic = this.add(new FlxSprite(0, 0, winPic)) as FlxSprite;
+			this.add(new FlxText(0, FlxG.height  -24, FlxG.width/2, "Press Z to quit").setFormat(null, 8, 0xffffffff, "center"));
+			this.add(new FlxText(FlxG.width/2, 2, FlxG.width/2, time).setFormat(null, 8, 0xffffffff, "center"));
 			FlxG.play(winSnd);
         }
 		
@@ -25,15 +25,15 @@
         {
             if (FlxG.keys.Z)
             {
-                FlxG.flash(0xffffffff, 0.75);
-                FlxG.fade(0xff000000, 0.5, onFade);
+                FlxG.flash.start(0xffffffff, 0.75);
+                FlxG.fade.start(0xff000000, 0.5, onFade);
             }
             super.update();
         }
 		
         private function onFade():void
         {
-            FlxG.switchState(TitleState);
+            FlxG.state = new TitleState;
         }
     }
 }

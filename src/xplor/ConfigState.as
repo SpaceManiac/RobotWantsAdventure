@@ -55,7 +55,8 @@
 		private var fading:Boolean = false;
 		private var selection:uint = 0;
 		
-        override public function ConfigState() {
+        override public function create():void {
+			
 			FlxG.log("ConfigState opened");
 			this.add(new Background());
             add(new FlxText(0, 8, FlxG.width, "Game Options").setFormat(null, 16, 0xffffff, "center"));
@@ -129,8 +130,8 @@
 		private function finish():void {
 			if(!fading) {
 				fading = true;
-				FlxG.flash(0xffffffff, 0.75);
-				FlxG.fade(0xff000000, 0.5, onFade);
+				FlxG.flash.start(0xffffffff, 0.75);
+				FlxG.fade.start(0xff000000, 0.5, onFade);
 				FlxG.play(hitSnd);
 			}
 		}
@@ -268,7 +269,7 @@
         }
 		
         private function onFade():void {
-			FlxG.switchState(TitleState);
+			FlxG.state = new TitleState;
         }
     }
 }

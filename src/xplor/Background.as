@@ -9,7 +9,7 @@
 		
 		public function Background() 
 		{
-			super(BgImage, FlxG.scroll.x, FlxG.scroll.y);
+			super(FlxG.scroll.x, FlxG.scroll.y, BgImage);
 		}
 		
 		override public function update():void
