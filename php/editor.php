@@ -1,11 +1,11 @@
 <?php
 require_once '../wombat.php';
-WombatHead('Robot Wants Kitty: Adventure Edition');
+WombatHead('RWK:AE - Editor');
 ?>
-<h1>RWK: Adventure Edition</h1>
-<p>Welcome to the home of <b>Robot Wants Kitty: Adventure Edition</b>!<br />
+<h1>RWK:AE - Editor</h1>
 <?php include('linkbar.php'); ?>
-</p>
+
+<p>Ue
 
 <?php embed('rwa', 640, 480); ?>
 
