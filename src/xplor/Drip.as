@@ -18,12 +18,12 @@
 		protected static const HEALTH:int = 4;
 		protected static const SPEED:Number = 20;
 		protected var player:Player;
-		protected var bombs:Array;
+		protected var bombs:FlxGroup;
 		protected var reload:Number;
 		protected var map:Array;
 		protected var boom:FlxEmitter;
 		
-		public function Drip(x:int, y:int, map:Array, bombs:Array, player:xplor.Player) 
+		public function Drip(x:int, y:int, map:Array, bombs:FlxGroup, player:xplor.Player) 
 		{
 			super(x * 16, y * 16);
 			loadGraphic(AlienImage, true, true);
@@ -71,17 +71,10 @@
 			super.update();
 			if (reload == 0)
 			{
-				reload = 1.5;
-				var loc4:*= 0;
-				var loc5:*= bombs;
-				for each(var b:Bomb in bombs)
-				{
-					if (b.exists != false)
-					{
-						continue;
-					}
+				var b:Bomb = bombs.getFirstAvail() as Bomb;
+				if(b != null) {
+					reload = 1.5;
 					b.shoot(xx, yy, 0, 100);
-					break;
 				}
 			}
 			return;

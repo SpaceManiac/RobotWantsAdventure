@@ -18,13 +18,13 @@
 		
 		protected var tileMap:FlxTilemap;
 		protected var player:Player;
-		protected var enemies:Array;
+		protected var enemies:FlxGroup;
 		protected var timerTxt:FlxText;
 		protected var timer:Number;
-		protected var bullets:Array;
-		protected var missiles:Array;
+		protected var bullets:FlxGroup;
+		protected var missiles:FlxGroup;
 		protected var kitty:Kitty;
-		protected var bombs:Array;
+		protected var bombs:FlxGroup;
 		protected var bg:Background;
 		
 		public function LoadMap():void
@@ -73,37 +73,37 @@
 				{
 					a[i] = 0;
 					tileMap.setTileByIndex(i, 0);
-					enemies.push(this.add(new Drip(i % 256, i / 256, a, bombs, player)));
+					enemies.add(new Drip(i % 256, i / 256, a, bombs, player));
 				}
 				if (a[i] == 3)	// sideways walkers
 				{
 					a[i] = 0;
 					tileMap.setTileByIndex(i, 0);
-					enemies.push(this.add(new Alien(i % 256, i / 256, tileMap)));
+					enemies.add(new Alien(i % 256, i / 256, tileMap));
 				}
 				if (a[i] == 10)	// flyers
 				{
 					a[i] = 0;
 					tileMap.setTileByIndex(i, 0);
-					enemies.push(this.add(new Alien2(i % 256, i / 256, a)));
+					enemies.add(new Alien2(i % 256, i / 256, a));
 				}
 				if (a[i] == 14)	// big boss
 				{
 					a[i] = 0;
 					tileMap.setTileByIndex(i, 0);
-					enemies.push(this.add(new Boss(i % 256, i / 256, a,bombs,player)));
+					enemies.add(new Boss(i % 256, i / 256, a,bombs,player));
 				}
 				if (a[i] == 20)	// tall guy
 				{
 					a[i] = 0;
 					tileMap.setTileByIndex(i, 0);
-					enemies.push(this.add(new AlienTall(i % 256, i / 256, tileMap)));
+					enemies.add(new AlienTall(i % 256, i / 256, tileMap));
 				}
 				if (a[i] == 21)	// ouchtopus
 				{
 					a[i] = 0;
 					tileMap.setTileByIndex(i, 0);
-					enemies.push(this.add(new Ouchtopus(i % 256, i / 256,bombs)));
+					enemies.add(new Ouchtopus(i % 256, i / 256,bombs));
 				}
 				if (a[i] == 50)	// check to see about making it a big one
 				{
@@ -154,10 +154,12 @@
 			bg = new Background();
 			add(bg);
 			
-			enemies = new Array();
-			bullets = new Array();
-			missiles = new Array();
-			bombs = new Array();
+			enemies = new FlxGroup();
+			bullets = new FlxGroup();
+			missiles = new FlxGroup();
+			bombs = new FlxGroup();
+			add(enemies); add(bullets);
+			add(missiles); add(bombs);
 				
 			timer = 0;
 			LoadMap();
@@ -166,11 +168,11 @@
 			TimerText();
 			
 			for (var i:int = 0; i < 20; i++)
-				bullets.push(this.add(new Laser()));
+				bullets.add(new Laser());
 			for (i = 0; i < 20; i++)
-				missiles.push(this.add(new Missile(tileMap)));
+				missiles.add(new Missile(tileMap));
 			for (i= 0; i < 20; i++)
-				bombs.push(this.add(new Bomb()));
+				bombs.add(new Bomb());
 			
 		}
 		
@@ -202,15 +204,15 @@
 		public override function update():void
 		{
 			super.update();
-			tileMap.collide(player);
-			tileMap.collideArray(enemies);
-			tileMap.collideArray(bullets);
-			tileMap.collideArray(missiles);
-			tileMap.collideArray(bombs);
-			FlxG.overlapArray(bombs, player, PlayerBumped);
-			FlxG.overlapArrays(bullets, enemies, LaserShotGuy);
-			FlxG.overlapArrays(missiles, enemies, MissileShotGuy);
-			FlxG.overlapArray(enemies, player, PlayerBumped);
+			FlxU.collide(tileMap, player);
+			FlxU.collide(tileMap, enemies);
+			FlxU.collide(tileMap, bullets);
+			FlxU.collide(tileMap, missiles);
+			FlxU.collide(tileMap, bombs);
+			FlxU.overlap(bombs, player, PlayerBumped);
+			FlxU.overlap(bullets, enemies, LaserShotGuy);
+			FlxU.overlap(missiles, enemies, MissileShotGuy);
+			FlxU.overlap(enemies, player, PlayerBumped);
 			if (Math.abs(player.x - kitty.x) < 30 && Math.abs(player.y - kitty.y) < 30)
 			{
 				TimerText();

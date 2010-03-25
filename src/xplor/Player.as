@@ -38,7 +38,7 @@
 		protected static const POWER_MISSILE:int = 9;
 		
 		public var justdied:Boolean = false;
-		protected var powers:Array,bullets:Array,missiles:Array;
+		protected var powers:Array,bullets:FlxGroup,missiles:FlxGroup;
 		protected var map:FlxTilemap;
 		public var startx:int, starty:int;
 		protected var reload:int;
@@ -53,7 +53,7 @@
 		
 		public var tx:int, ty:int;
 		
-		public function Player(x:int,y:int,map:FlxTilemap,bullets:Array,missiles:Array)
+		public function Player(x:int,y:int,map:FlxTilemap,bullets:FlxGroup,missiles:FlxGroup)
 		{
 			
 			startx = x * 16;
@@ -160,20 +160,13 @@
 				{
 					if (powers[POWER_MISSILE]==1 && reload == 0)
 					{
-						for each(var m:Missile in missiles)
-						{
-							var missilespeed:int;
-							missilespeed = -200;
-							
-							if (m.exists == false)
-							{
-								reload = 50;
-								if (powers[POWER_RAPID] == 1) {
-									reload = 20;
-								}
-								m.shoot(x, y, 0, missilespeed);
-								break;
+						var m:Missile = missiles.getFirstAvail() as Missile;
+						if(m != null) {
+							reload = 50;
+							if (powers[POWER_RAPID] == 1) {
+								reload = 20;
 							}
+							m.shoot(x, y, 0, -200);
 						}
 					}
 				}
@@ -242,22 +235,18 @@
 				{
 					if (powers[POWER_SHOOT]==1 && reload == 0)
 					{
-						var shotspeed:int;
-						if (facing == LEFT)
-							shotspeed = -180;
-						else
-							shotspeed = 180;
-						reload = 30;
-						if (powers[POWER_RAPID] == 1)
-							reload = 5;
-						
-						for each(var b:Laser in bullets)
-						{
-							if (b.exists == false)
-							{
-								b.shoot(x, y, shotspeed, 0);
-								break;
+						var b:Laser = bullets.getFirstAvail() as Laser;
+						if(b != null) {
+							var shotspeed:int;
+							if (facing == LEFT)
+								shotspeed = -180;
+							else
+								shotspeed = 180;
+							reload = 30;
+							if (powers[POWER_RAPID] == 1) {
+								reload = 5;
 							}
+							b.shoot(x, y, shotspeed, 0);
 						}
 					}
 				}

@@ -19,14 +19,14 @@
 		protected static const HEALTH:int = 50;
 		protected var map:Array;
 		protected var boom:FlxEmitter;
-		protected var bombs:Array;
+		protected var bombs:FlxGroup;
 		protected var reload:int;
 		protected var player:Player;
 		private var justhit:Boolean = false;
 		
 		private var healthbar:HealthBar = null;
 		
-		public function Boss(x:int,y:int,map:Array,bombs:Array,player:Player) 
+		public function Boss(x:int,y:int,map:Array,bombs:FlxGroup,player:Player) 
 		{
 			super(x * 16, y * 16);
 			loadGraphic(AlienImage, true, true);
@@ -77,21 +77,13 @@
 			
 			if (reload == 0)
 			{
-				reload = 90;
-				for each(var b:Bomb in bombs)
-				{
-					if (b.exists == false)
-					{
-						b.shoot(xx, yy, -120, -200);
-						break;
-					}
-				}
-				for each(b in bombs)
-				{
-					if (b.exists == false)
-					{
+				var b:Bomb = bombs.getFirstAvail() as Bomb;
+				if(b != null) {
+					reload = 90;
+					b.shoot(xx, yy, -120, -200);
+					b = bombs.getFirstAvail() as Bomb;
+					if(b != null) {
 						b.shoot(xx, yy, 120, -200);
-						break;
 					}
 				}
 			}

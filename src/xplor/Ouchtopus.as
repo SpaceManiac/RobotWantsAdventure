@@ -19,10 +19,10 @@
 		protected static const HEALTH:int = 5;
 		protected var boom:FlxEmitter;
 		protected var reload:int = 0;
-		protected var bombs:Array;
+		protected var bombs:FlxGroup;
 		public var justdied:Boolean;
 		
-		public function Ouchtopus(x:int,y:int,bombs:Array) 
+		public function Ouchtopus(x:int,y:int,bombs:FlxGroup) 
 		{
 			super(x * 16, y * 16);
 			loadGraphic(AlienImage, true, true);
@@ -52,21 +52,13 @@
 			
 			if (reload == 0)
 			{
-				reload = 360;
-				for each(var b:Bomb in bombs)
-				{
-					if (b.exists == false)
-					{
-						b.shoot(xx, yy, -60, -150, "_g");
-						break;
-					}
-				}
-				for each(b in bombs)
-				{
-					if (b.exists == false)
-					{
+				var b:Bomb = bombs.getFirstAvail() as Bomb;
+				if(b != null) {
+					reload = 360;
+					b.shoot(xx, yy, -60, -150, "_g");
+					b = bombs.getFirstAvail() as Bomb;
+					if(b != null) {
 						b.shoot(xx, yy, 60, -150, "_g");
-						break;
 					}
 				}
 			}
