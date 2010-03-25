@@ -46,7 +46,7 @@
 			this.height = 34;
 		
 			reload = 30;
-			boom = FlxG.state.add(new FlxEmitter(0,28,64,34,null,-3,-60,60,-60,
+			boom = FlxG.state.add(new FlxEmitter().remakeOld(0,28,64,34,null,-3,-60,60,-60,
 				60, -720, 720, 10, 0, BlastImage, 30, true)) as FlxEmitter;
 		}
 		

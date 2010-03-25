@@ -35,7 +35,7 @@
 			play("wiggle");
 			health = HEALTH;
 			reload = Math.random() * 1.5;
-			boom = FlxG.state.add(new FlxEmitter(0,0,10,10,null,-1,-60,60,-60,
+			boom = FlxG.state.add(new FlxEmitter().remakeOld(0,0,10,10,null,-1,-60,60,-60,
 				60,-720,720,10,0,BlastImage,8,true)) as FlxEmitter;
 		}
 		

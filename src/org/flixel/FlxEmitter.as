@@ -168,6 +168,30 @@ package org.flixel
 			return this;
 		}
 		
+		// SpaceManiac added this
+		public function remakeOld(X:Number, Y:Number, Width:uint, Height:uint, Sprites:FlxGroup = null, Delay:Number = -1,
+			MinVelocityX:Number = -100, MaxVelocityX:Number = 100, MinVelocityY:Number = -100, MaxVelocityY:Number = 100,
+			MinRotation:Number = -360, MaxRotation:Number = 360, Gravity:Number = 500, Drag:Number = 0, Graphics:Class = null,
+			Quantity:uint = 0, Multiple:Boolean = false):FlxEmitter
+		{
+			x = X; y = Y;
+			setSize(Width, Height);
+			setXSpeed(MinVelocityX, MaxVelocityX);
+			setYSpeed(MinVelocityY, MaxVelocityY);
+			setRotation(MinRotation, MaxRotation);
+			gravity = Gravity;
+			drag.x = Drag;
+			drag.y = Drag;
+			delay = Delay;
+			
+			if (Sprites == null) {
+				createSprites(Graphics, Quantity, 16, Multiple);
+			} else {
+				members = Sprites.members;
+			}
+			return this;
+		}
+		
 		/**
 		 * A more compact way of setting the width and height of the emitter.
 		 * 

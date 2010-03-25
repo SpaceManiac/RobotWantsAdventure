@@ -82,13 +82,13 @@
 			reload = 0;
 			airjump = 0;
 			
-			var fireballs:Array = new Array();
+			var fireballs:FlxGroup = new FlxGroup();
+			FlxG.state.add(fireballs);
 			for (var v:uint = 0; v < 20; ++v) {
 				var f:Fireball = new Fireball(map);
-				fireballs.push(f);
-				FlxG.state.add(f);
+				fireballs.add(f);
 			}
-			rocket = new FlxEmitter(0, 0, 5, 5, fireballs, 0.05, -10, 10, 0, 300, 0, 0, 600, 5, null, 12, true); 
+			rocket = new FlxEmitter().remakeOld(0, 0, 5, 5, fireballs, 0.05, -10, 10, 0, 300, 0, 0, 600, 5, null, 12, true); 
 			FlxG.state.add(rocket);
 			rocket.kill();
 
