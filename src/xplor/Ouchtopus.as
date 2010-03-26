@@ -51,11 +51,11 @@
 			
 			if (reload == 0)
 			{
-				reload = 360;
 				for each(var b:Bomb in bombs)
 				{
 					if (b.exists == false)
 					{
+						reload = 360;
 						b.shoot(xx, yy, -60, -150, "_g");
 						break;
 					}
