@@ -28,10 +28,10 @@
 			this.add(new FlxText(0, 220, FlxG.width + 1, "Build " + s, 0xffffffff, null, 8, "center"));
 			//this.add(new FlxText(0, 110, FlxG.width, "Selected:", 0xffffffff, null, 8, "center")); 
 			//this.add(new FlxText(0, 120, FlxG.width, Adventure, 0xffffffff, null, 8, "center")); 
-			this.add(new MenuButton(FlxG.width / 2, 70, play, "Play!"));
-			this.add(new MenuButton(FlxG.width / 2, 110, adv, "Select Adventure"));
+			this.add(new MenuButton(FlxG.width / 2, 70, play, "Play! (Z)"));
+			this.add(new MenuButton(FlxG.width / 2, 110, adv, "Select Adventure (A)"));
 			this.add(new FlxText(0, 134, FlxG.width, Adventure, 0xffffffff, null, 8, "center")); 
-			this.add(new MenuButton(FlxG.width / 2, 150, config, "Game Options"));
+			this.add(new MenuButton(FlxG.width / 2, 150, config, "Game Options (X)"));
             //this.add(new FlxText(0, FlxG.height - 28, FlxG.width, "Press Z to start", 0xffffffff, null, 8, "center"));
             //this.add(new FlxText(0, FlxG.height - 20, FlxG.width, "Press X to configure", 0xffffffff, null, 8, "center"));
 			//this.add(new FlxText(0, FlxG.height - 12, FlxG.width, "Press Q while playing to quit", 0xffffffff, null, 8, "center"));
