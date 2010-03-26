@@ -76,12 +76,12 @@
 			
 			if (reload == 0)
 			{
-				reload = 90;
 				for each(var b:Bomb in bombs)
 				{
 					if (b.exists == false)
 					{
 						b.shoot(xx, yy, -120, -200);
+						reload = 90;
 						break;
 					}
 				}

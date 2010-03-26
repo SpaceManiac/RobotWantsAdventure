@@ -9,6 +9,6 @@ WombatHead('RWK:AE - Editor');
 
 <?php embed('rwa', 640, 480); ?>
 
-<p>Current build is <b>402</b>. Hard refresh if what's shown is below that!</p>
+<p>Current build is <b>405</b>. Hard refresh if what's shown is below that!</p>
 
 <?php WombatFoot(); ?>

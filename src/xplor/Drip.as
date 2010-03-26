@@ -70,15 +70,13 @@
 			super.update();
 			if (reload == 0)
 			{
-				reload = 1.5;
-				var loc4:*= 0;
-				var loc5:*= bombs;
 				for each(var b:Bomb in bombs)
 				{
 					if (b.exists != false)
 					{
 						continue;
 					}
+					reload = 1.5;
 					b.shoot(xx, yy, 0, 100);
 					break;
 				}

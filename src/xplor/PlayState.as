@@ -164,11 +164,13 @@
 			if (ConfigState.Timer) add(timerTxt);
 			TimerText();
 			
-			for (var i:int = 0; i < 20; i++)
+			
+			var limit:uint = 20;
+			for (var i:int = 0; i < limit; i++)
 				bullets.push(this.add(new Laser()));
-			for (i = 0; i < 20; i++)
+			for (i = 0; i < limit; i++)
 				missiles.push(this.add(new Missile(tileMap)));
-			for (i= 0; i < 20; i++)
+			for (i= 0; i < limit; i++)
 				bombs.push(this.add(new Bomb()));
 			
 		}
